@@ -7,7 +7,7 @@ use crate::factor_algorithms::{
 const PICK_DEFAULT_VEC_INDEX_BRILLHART_MORRISON: usize = 0;
 
 //big function that uses all factorization methods multiple times to factor number
-pub fn factorize_number(n: &u128, verbose: bool) -> Vec<u128> {
+pub fn factorize_number(n: &u128, _verbose: bool) -> Vec<u128> {
     let mut result_vec = Vec::new();
 
     if is_prime(n, &DEFAULT_PRIME_TEST_ITER).unwrap() {
@@ -123,7 +123,7 @@ pub fn factorize_all_algorithms(n: &u128, verbose: bool) -> Vec<u128> {
             result_vec.push(divider);
             n /= divider;
             if verbose == true {
-                println!("Rho pollard dividers: {}", divider)
+                println!("Rho pollard divider: {}", divider)
             }
         }
         _ => {}
@@ -150,20 +150,20 @@ pub fn factorize_all_algorithms(n: &u128, verbose: bool) -> Vec<u128> {
                     result_vec.push(dividers[1]);
                     n /= dividers[1];
                     if verbose == true {
-                        println!("Brillhart morrison dividers: {}, {}", dividers[1], n);
+                        println!("Brillhart morrison divider: {}, n: {}", dividers[1], n);
                     }
                 } else if dividers[0] != 1 && dividers[1] == 1 {
                     result_vec.push(dividers[0]);
                     n /= dividers[0];
                     if verbose == true {
-                        println!("Brillhart morrison dividers: {}, {}", dividers[0], n);
+                        println!("Brillhart morrison divider: {}, n: {}", dividers[0], n);
                     }
                 } else if dividers[0] != 1 && dividers[1] != 1 {
                     result_vec.push(dividers[PICK_DEFAULT_VEC_INDEX_BRILLHART_MORRISON]);
                     n /= dividers[PICK_DEFAULT_VEC_INDEX_BRILLHART_MORRISON];
                     if verbose == true {
                         println!(
-                            "Brillhart morrison dividers: {}, {}",
+                            "Brillhart morrison divider: {}, n: {}",
                             dividers[PICK_DEFAULT_VEC_INDEX_BRILLHART_MORRISON], n
                         );
                     }

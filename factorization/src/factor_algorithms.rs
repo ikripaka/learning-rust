@@ -234,6 +234,7 @@ fn is_dividing_dec(n: &u128, m: &u128) -> Result<bool, io::Error> {
 }
 
 /// raises number to the power with Horner scheme
+#[warn(dead_code)]
 pub fn pow_mod_horner(a: &u128, pow: &u128, module: &u128) -> Result<u128, io::Error> {
     let pow_binary: String = format!("{:b}", *pow);
     let pow_binary_len = format!("{:b}", *pow).graphemes(true).count();
@@ -290,6 +291,7 @@ fn gcd(a: &u128, b: &u128) -> u128 {
 
 /// Using property of GCD to calculate LCM
 /// lcm(a,b) = a*b/gcd(a,b)
+#[warn(dead_code)]
 fn lcm(a: &u128, b: &u128) -> u128 {
     return (a * b) / gcd(a, b);
 }

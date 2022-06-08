@@ -28,6 +28,9 @@ impl Arguments {
         if arg1.contains("-v") || arg1.contains("-V") && args.len() == 3 {
             // cargo run -- -v 25511
             if let Ok(number) = u128::from_str_radix(&args[2], 10) {
+                if number <= 0{
+                    return Err("invalid input");
+                }
                 return Ok(Arguments {
                     verbose: true,
                     number,
@@ -37,11 +40,14 @@ impl Arguments {
             } else {
                 return Err("troubles with converting number");
             }
-        } else if let Ok(number) = u128::from_str_radix(&args[1], 10) {
+        } else if let Ok(num) = u128::from_str_radix(&args[1], 10) {
             // cargo run -- 25511
+            if num == 0{
+                return Err("invalid input");
+            }
             return Ok(Arguments {
                 verbose: false,
-                number,
+                number: num,
                 file: false,
                 file_path: String::new(),
             });
@@ -53,6 +59,9 @@ impl Arguments {
                 file: true,
                 file_path: arg1,
             });
+        }
+        if !std::path::Path::new(&arg1).exists(){
+            return Err("file do not exist")
         }
         return Err("invalid syntax");
     }
@@ -71,14 +80,14 @@ fn process_arguments(args: &Arguments, output_filename: &String) -> Result<(), B
             eprintln!("{} problem parsing arguments from .csv file", err);
             process::exit(0);
         });
-        let mut file = File::create(output_filename).expect("Error encountered while creating file!");
-        let mut wtr = csv::Writer::from_writer(file);
+        let file = File::create(output_filename).expect("Error encountered while creating file!");
+        let mut wtr = csv::WriterBuilder::new().flexible(true).from_writer(file);
         for num in num_vec.iter() {
             let string_vec: Vec<String> = factorize::factorize_all_algorithms(num, false)
                 .iter()
                 .map(|x: &u128| x.to_string())
                 .collect();
-            wtr.write_record(&string_vec);
+            wtr.write_record(&string_vec)?;
         }
         wtr.flush()?;
         Ok(())
@@ -86,7 +95,7 @@ fn process_arguments(args: &Arguments, output_filename: &String) -> Result<(), B
 }
 
 fn read_csv(file_path: &String) -> Result<Vec<u128>, Box<dyn Error>> {
-    let mut rdr = csv::ReaderBuilder::new()
+    let rdr = csv::ReaderBuilder::new()
         .has_headers(true)
         .from_path(file_path);
     let mut num_vec = Vec::new();
@@ -106,8 +115,8 @@ fn main() {
     let output_filename: &String = &String::from("cp_1_output.csv");
     let args: Vec<String> = env::args().collect();
     let program = args[0].clone();
-    let vec = [String::from("target/debug/factorization"), String::from("/home/ikripaka/Documents/learning-rust/factorization/src/cp_1_input.csv")];
-    let arguments = Arguments::new(&vec).unwrap_or_else(|err| {
+    // let vec = [String::from("target/debug/factorization"), String::from("-v"), String::from("397357310")];
+    let arguments = Arguments::new(&args).unwrap_or_else(|err| {
         eprintln!("{} problem parsing arguments: {}", program, err);
         process::exit(0);
     });

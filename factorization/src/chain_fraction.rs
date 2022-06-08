@@ -39,12 +39,6 @@ impl ChainFraction {
     }
 }
 
-impl ChainFraction {
-    fn get_calculations(&self) -> (Vec<i128>, Vec<i128>, Vec<i128>) {
-        (self.a_s.clone(), self.b_s.clone(), self.b_squared.clone())
-    }
-}
-
 impl Iterator for ChainFraction {
     type Item = i128;
 
