@@ -56,6 +56,20 @@ impl Arguments {
         } else if arg1.contains("-v") || arg1.contains("-V") && args.len() == 3 {
             // cargo run -- -v 370,670,911
             let number_vec: Vec<&str> = args[2].split(",").collect();
+            match u128::from_str_radix(&number_vec[0], 10){
+                Ok(_)=>(),
+                Err(err) => Err(format!("u128 overflow/err: {}", err))
+            }
+            match u128::from_str_radix(&number_vec[1], 10){
+                Ok(_)=>(),
+                Err(err) => Err(format!("u128 overflow/err: {}", err))
+            }
+            match u128::from_str_radix(&number_vec[2], 10){
+                Ok(_)=>(),
+                Err(err) => Err(format!("u128 overflow/err: {}", err))
+            }
+
+
             let num1 = BigInt::from_str(&number_vec[0]);
             let num2 = BigInt::from_str(&number_vec[1]);
             let num3 = BigInt::from_str(&number_vec[2]);

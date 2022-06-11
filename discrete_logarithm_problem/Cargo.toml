@@ -9,3 +9,9 @@ edition = "2021"
 csv = "1.1"
 num-bigint = "0.4.3"
 num-traits = "0.2"
+
+rand = "0.8.5"
+unicode-segmentation = "0.1.2"
+integer-sqrt = "0.1.5"
+
+polynomials = "0.2.4"
