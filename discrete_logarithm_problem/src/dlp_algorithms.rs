@@ -1,12 +1,13 @@
+use crate::factor_algorithms::brillhart_morrison;
 use crate::factorize::factorize_number;
 use num_bigint::BigInt;
 use num_traits::{One, ToPrimitive, Zero};
 use std::collections::HashMap;
-use crate::factor_algorithms::brillhart_morrison;
+use std::ptr::eq;
 
 // x = a (mod n)
-#[derive(Clone)]
-struct ModuleEquation {
+#[derive(Clone, Debug)]
+pub struct ModuleEquation {
     a: BigInt,
     n: BigInt,
 }
@@ -26,8 +27,8 @@ fn silver_pohlig_hellman<'a>(
 
     // factorizing number "n-1"
     let mut module_factor = factorize_number(&(n - BigInt::one()).to_u128().unwrap(), false);
-    //delete 1
 
+    //delete one '1'
     match module_factor.iter().position(|&x| x == 1_u128) {
         Some(index) => {
             module_factor.remove(index);
@@ -77,17 +78,72 @@ fn silver_pohlig_hellman<'a>(
         precalculated_tables.insert(key.clone(), pow_map);
     }
 
-    let equations: Vec<ModuleEquation> = Vec::new();
-    let inverse_a = inverse(a, n);
+    let mut equations: Vec<ModuleEquation> = Vec::new();
+    let inverse_a = inverse(a, n).unwrap();
     for key in map.keys() {
-        for i in 0..(*map.get(&key).unwrap()).to_u128().unwrap() {}
+        let mut x = BigInt::zero();
+        let p_i_hashmap = precalculated_tables.get(key).unwrap();
+        println!("\niterations:{}", (*map.get(&key).unwrap()).to_u128().unwrap());
+        for i in 0..(*map.get(&key).unwrap()).to_u128().unwrap() {
+            let x_i = p_i_hashmap
+                .get(
+                    &((b * inverse_a.modpow(&x, n))
+                        .modpow(&((n - BigInt::one()) / key.pow((i + 1) as u32)), n)),
+                )
+                .unwrap();
+            x += x_i * key.pow(i as u32);
+            println!("p_i:{}, i:{}, x_i: {}, x: {}, x_i * 2^{}: {}", key, i, x_i, x, i, x_i * BigInt::from(2).pow(i as u32));
+            println!("{:?}", p_i_hashmap)
+        }
+        println!("x: {}", x);
+        equations.push(ModuleEquation {
+            a: x,
+            n: key.pow((*map.get(&key).unwrap()).to_u32().unwrap()),
+        })
     }
-    println!("{:?}", precalculated_tables);
+    println!("precalc tables: {:?}", precalculated_tables);
+    println!("equations : {:?}", equations);
 
-    Ok(BigInt::one())
+    match solve_equations(&equations, n) {
+        Ok(result) => return Ok(result),
+        Err(_) => return Err("failed to solve equations"),
+    }
 }
 
-// Agorithm to find inverse by module using Extended Euclides algorithm
+// solving module equations by using (Generalized Chinese Remainder Theorem)
+fn solve_equations(
+    equations_vec: &Vec<ModuleEquation>,
+    n: &BigInt,
+) -> Result<BigInt, &'static str> {
+    let mut m_i = vec![BigInt::zero(); equations_vec.len()];
+    for i in 0..equations_vec.len() {
+        for j in 0..m_i.len() {
+            if j != i {
+                if m_i[j] == BigInt::zero() {
+                    m_i[j] += &equations_vec[i].n;
+                } else {
+                    m_i[j] *= &equations_vec[i].n;
+                }
+            }
+        }
+    }
+    println!("M_i: {:?}", m_i);
+
+    let mut n_i = Vec::new();
+    for i in 0..equations_vec.len() {
+        n_i.push(inverse(&m_i[i], &equations_vec[i].n).unwrap())
+    }
+    println!("N_i: {:?}", n_i);
+    let mut x = BigInt::zero();
+    for i in 0..equations_vec.len() {
+        println!("i:{}, x_i: {}, m_i: {}, n_i: {}, multiply: {}", i, equations_vec[i].a, m_i[i], n_i[i], (&equations_vec[i].a * &m_i[i] * &n_i[i]));
+        x += (&equations_vec[i].a * &m_i[i] * &n_i[i]);
+    }
+    println!("module: {}, {} mod n = {}", n - BigInt::one(), x, &x % &(n - BigInt::one()));
+    return Ok(x % &(n - BigInt::one()));
+}
+
+// Algorithm to find inverse by module using Extended Euclides algorithm
 fn inverse(a: &BigInt, n: &BigInt) -> Result<BigInt, &'static str> {
     let mut a_mut = a.clone();
     if a >= n {
@@ -97,7 +153,7 @@ fn inverse(a: &BigInt, n: &BigInt) -> Result<BigInt, &'static str> {
     let mut t = BigInt::zero();
     let mut r = n.clone();
     let mut new_t = BigInt::one();
-    let mut new_r = a.clone();
+    let mut new_r = a_mut.clone();
     while new_r != BigInt::zero() {
         let quotient = &r / &new_r;
         let new_t_aux = t;
@@ -106,6 +162,9 @@ fn inverse(a: &BigInt, n: &BigInt) -> Result<BigInt, &'static str> {
         let new_r_aux = r; //auxiliary
         r = new_r.clone();
         new_r = new_r_aux - &quotient * &new_r;
+    }
+    if r > BigInt::one() {
+        return Err("number is not invvertible");
     }
     if t < BigInt::zero() {
         t += n;
@@ -118,47 +177,73 @@ mod tests {
     use crate::dlp_algorithms::{inverse, silver_pohlig_hellman};
     use num_bigint::BigInt;
     use num_traits::{One, Zero};
+    use std::time::Instant;
     use std::u128::MAX;
 
     #[test]
     fn silver_pohlig_test() {
         // println!(
-        //     "{}",
+        //     "{}\n",
         //     silver_pohlig_hellman(
         //         &BigInt::from(10_u128),
         //         &BigInt::from(13_u128),
         //         &BigInt::from(29_u128),
         //     )
-        //         .unwrap_or_else(|err| {
-        //             eprintln!("an error occurred {}", err);
-        //             BigInt::zero()
-        //         })
+        //     .unwrap_or_else(|err| {
+        //         eprintln!("an error occurred {}", err);
+        //         BigInt::zero()
+        //     })
         // );
-
+        //
+        // println!(
+        //     "{}",
+        //     silver_pohlig_hellman(
+        //         &BigInt::from(3_u128),
+        //         &BigInt::from(15_u128),
+        //         &BigInt::from(43_u128),
+        //     )
+        //     .unwrap_or_else(|err| {
+        //         eprintln!("an error occurred {}", err);
+        //         BigInt::zero()
+        //     })
+        // );
+        //
+        // println!(
+        //     "{}",
+        //     silver_pohlig_hellman(
+        //         &BigInt::from(5_u128),
+        //         &BigInt::from(11_u128),
+        //         &BigInt::from(97_u128),
+        //     )
+        //     .unwrap_or_else(|err| {
+        //         eprintln!("an error occurred {}", err);
+        //         BigInt::zero()
+        //     })
+        // );
+        //
+        // println!(
+        //     "{}",
+        //     silver_pohlig_hellman(
+        //         &BigInt::from(5_u128),
+        //         &BigInt::from(11_u128),
+        //         &BigInt::from(73_u128),
+        //     )
+        //     .unwrap_or_else(|err| {
+        //         eprintln!("an error occurred {}", err);
+        //         BigInt::zero()
+        //     })
+        // );
         println!(
-            "{}",
+            "{}", //75552
             silver_pohlig_hellman(
-                &BigInt::from(3_u128),
-                &BigInt::from(15_u128),
-                &BigInt::from(43_u128),
+                &BigInt::from(1517),
+                &BigInt::from(86875),
+                &BigInt::from(181243),
             )
-                .unwrap_or_else(|err| {
-                    eprintln!("an error occurred {}", err);
-                    BigInt::zero()
-                })
-        );
-
-        println!(
-            "{}",
-            silver_pohlig_hellman(
-                &BigInt::from(5_u128),
-                &BigInt::from(11_u128),
-                &BigInt::from(73_u128),
-            )
-                .unwrap_or_else(|err| {
-                    eprintln!("an error occurred {}", err);
-                    BigInt::zero()
-                })
+            .unwrap_or_else(|err| {
+                eprintln!("an error occurred {}", err);
+                BigInt::zero()
+            })
         );
         // println!("{}", MAX);
         // println!("{}", silver_pohlig_hellman(&BigInt::from(10_u128), &BigInt::from(13_u128), &BigInt::from(MAX)).unwrap_or_else(|err| {
@@ -202,10 +287,12 @@ mod tests {
 
         println!(
             "123^-1 mod 4272331909 = {}",
-            inverse(&BigInt::from(123_u128), &BigInt::from(4272331909_u128)).unwrap_or_else(|err| {
-                eprintln!("an error occurred {}", err);
-                BigInt::zero()
-            })
+            inverse(&BigInt::from(123_u128), &BigInt::from(4272331909_u128)).unwrap_or_else(
+                |err| {
+                    eprintln!("an error occurred {}", err);
+                    BigInt::zero()
+                }
+            )
         );
         assert_eq!(
             inverse(&BigInt::from(123_u128), &BigInt::from(4272331909_u128)).unwrap_or_else(
@@ -216,5 +303,43 @@ mod tests {
             ),
             BigInt::from(590484898_u128)
         );
+    }
+    #[test]
+    fn silver_pohlig_hellman_bench() {
+        let input_numbers = vec![
+            (
+                BigInt::from(77783),
+                BigInt::from(78557),
+                BigInt::from(79939),
+            ),
+            (
+                BigInt::from(21),
+                BigInt::from(28),
+                BigInt::from(53),
+            ),(
+                BigInt::from(364),
+                BigInt::from(50),
+                BigInt::from(401),
+            ),(
+                BigInt::from(77783),
+                BigInt::from(78557),
+                BigInt::from(79939),
+            ),(
+                BigInt::from(77783),
+                BigInt::from(78557),
+                BigInt::from(79939),
+            )
+        ];
+        println!("Silver Pohlig Hellman bench test:");
+        for i in 0..input_numbers.len() {
+            let mut input_data = &input_numbers[i];
+            let now1 = Instant::now();
+            println!(
+                "number: {:?}, duration:{:?}, result: {:?}",
+                input_numbers[i],
+                now1.elapsed(),
+                silver_pohlig_hellman(&input_data.0, &input_data.1, &input_data.2)
+            );
+        }
     }
 }

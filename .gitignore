@@ -21,7 +21,7 @@ coverage/
 #Ignore .idea files
 /.idea
 
-/target
+./target
 
 # Ignore all logfiles and tempfiles.
 /log/*.log
