@@ -120,7 +120,6 @@ mod tests {
             while let Some(divider) = rho_pollard_method(&n) {
                 n /= divider;
             }
-            let now2 = Instant::now();
             println!("number: {}, duration:{:?}", i, now1.elapsed())
         }
     }

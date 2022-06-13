@@ -89,7 +89,6 @@ impl fmt::Display for ChainFraction {
 
 #[cfg(test)]
 mod tests {
-    use crate::chain_fraction;
     use crate::chain_fraction::ChainFraction;
 
     #[test]

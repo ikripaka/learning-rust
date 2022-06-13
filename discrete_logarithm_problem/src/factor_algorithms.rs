@@ -299,9 +299,8 @@ fn lcm(a: &u128, b: &u128) -> u128 {
 #[cfg(test)]
 mod tests {
     use crate::factor_algorithms::{
-        brillhart_morrison, gcd, is_dividing_dec, is_prime, lcm, pow_mod, rho_pollard_method,
+        gcd, is_dividing_dec, is_prime, lcm, pow_mod, rho_pollard_method,
     };
-    use crate::factor_base::FactorBase;
 
     #[test]
     fn rho_pollard_method_test() {

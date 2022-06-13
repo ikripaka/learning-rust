@@ -56,19 +56,27 @@ impl Arguments {
         } else if arg1.contains("-v") || arg1.contains("-V") && args.len() == 3 {
             // cargo run -- -v 370,670,911
             let number_vec: Vec<&str> = args[2].split(",").collect();
-            match u128::from_str_radix(&number_vec[0], 10){
-                Ok(_)=>(),
-                Err(err) => Err(format!("u128 overflow/err: {}", err))
+            match u128::from_str_radix(&number_vec[0], 10) {
+                Ok(_) => (),
+                Err(err) => {
+                    eprintln!("u128 overflow/err: {}", err);
+                    process::exit(0);
+                }
             }
-            match u128::from_str_radix(&number_vec[1], 10){
-                Ok(_)=>(),
-                Err(err) => Err(format!("u128 overflow/err: {}", err))
+            match u128::from_str_radix(&number_vec[1], 10) {
+                Ok(_) => (),
+                Err(err) => {
+                    eprintln!("u128 overflow/err: {}", err);
+                    process::exit(0);
+                }
             }
-            match u128::from_str_radix(&number_vec[2], 10){
-                Ok(_)=>(),
-                Err(err) => Err(format!("u128 overflow/err: {}", err))
+            match u128::from_str_radix(&number_vec[2], 10) {
+                Ok(_) => (),
+                Err(err) => {
+                    eprintln!("u128 overflow/err: {}", err);
+                    process::exit(0);
+                }
             }
-
 
             let num1 = BigInt::from_str(&number_vec[0]);
             let num2 = BigInt::from_str(&number_vec[1]);
@@ -110,16 +118,22 @@ fn process_arguments(args: &Arguments, output_filename: &String) -> Result<(), B
     if args.file == false {
         if args.verbose == true {
             println!(
-                "{:?}",
+                "{}",
                 discrete_logarithm_problem::dlp_solver::solve_log(true, &args.a, &args.b, &args.n)
+                    .unwrap_or_else(|err| {
+                        eprintln!("{} problem with calculating", err);
+                        process::exit(0);
+                    })
             );
-            println!("solving log verbose")
         } else {
             println!(
-                "{:?}",
+                "{}",
                 discrete_logarithm_problem::dlp_solver::solve_log(false, &args.a, &args.b, &args.n)
+                    .unwrap_or_else(|err| {
+                        eprintln!("{} problem with calculating", err);
+                        process::exit(0);
+                    })
             );
-            println!("solving log")
         }
         return Ok(());
     } else {
@@ -131,10 +145,13 @@ fn process_arguments(args: &Arguments, output_filename: &String) -> Result<(), B
         let file = File::create(output_filename).expect("Error encountered while creating file!");
         let mut wtr = csv::WriterBuilder::new().from_writer(file);
         for num in num_vec.iter() {
-            println!("solving log in csv file {:?}", *num);
             let string_vec: Vec<String> = vec![discrete_logarithm_problem::dlp_solver::solve_log(
                 false, &num.0, &num.1, &num.2,
             )
+            .unwrap_or_else(|err| {
+                eprintln!("{} problem with calculating", err);
+                process::exit(0);
+            })
             .to_str_radix(10)];
             wtr.write_record(&string_vec)?;
         }
@@ -160,10 +177,7 @@ fn read_csv(file_path: &String) -> Result<Vec<(BigInt, BigInt, BigInt)>, Box<dyn
                 process::exit(0);
             }))
             .unwrap_or_else(|err| {
-                eprintln!(
-                    "{} / failed to read / extract numbers from .csv",
-                    err
-                );
+                eprintln!("{} / failed to read / extract numbers from .csv", err);
                 process::exit(0);
             }),
             BigInt::from_str(csv_record.get(1).unwrap_or_else(|| {
@@ -174,10 +188,7 @@ fn read_csv(file_path: &String) -> Result<Vec<(BigInt, BigInt, BigInt)>, Box<dyn
                 process::exit(0);
             }))
             .unwrap_or_else(|err| {
-                eprintln!(
-                    "{} / failed to read / extract numbers from .csv",
-                    err
-                );
+                eprintln!("{} / failed to read / extract numbers from .csv", err);
                 process::exit(0);
             }),
             BigInt::from_str(csv_record.get(2).unwrap_or_else(|| {
@@ -188,10 +199,7 @@ fn read_csv(file_path: &String) -> Result<Vec<(BigInt, BigInt, BigInt)>, Box<dyn
                 process::exit(0);
             }))
             .unwrap_or_else(|err| {
-                eprintln!(
-                    "{} / failed to read / extract numbers from .csv",
-                    err
-                );
+                eprintln!("{} / failed to read / extract numbers from .csv", err);
                 process::exit(0);
             }),
         ));
@@ -209,14 +217,11 @@ fn main() {
     //         "/home/ikripaka/Documents/learning-rust/discrete_logarithm_problem/cp_2_input.csv",
     //     ),
     // ];
-    println!("{:?}", args);
-    // let vec = [String::from("target/debug/factorization"), String::from("-v"), String::from("397357310")];
+
     let arguments = Arguments::new(&args).unwrap_or_else(|err| {
         eprintln!("{} problem parsing arguments: {}", program, err);
         process::exit(0);
     });
-
-    println!("{:?}", arguments);
 
     process_arguments(&arguments, output_filename).unwrap_or_else(|err| {
         eprintln!("{} problem with writing to csv file: {}", program, err);
