@@ -1,6 +1,5 @@
 use crate::dlp_algorithms::silver_pohlig_hellman;
 use num_bigint::BigInt;
-use num_traits::One;
 
 pub fn solve_log(
     verbose: bool,

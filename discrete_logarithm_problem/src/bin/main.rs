@@ -7,7 +7,7 @@ use std::{env, process};
 
 // log a (x) = b (mod n)
 // cargo run -- -v 370,670,911
-//                  a,  b,  c
+//                  a,  b,  n
 // cargo run -- 370,670,911
 // cargo run -- file.csv
 #[derive(Debug)]
@@ -211,12 +211,6 @@ fn main() {
     let output_filename: &String = &String::from("cp_2_output.csv");
     let args: Vec<String> = env::args().collect();
     let program = args[0].clone();
-    // let args = vec![
-    //     String::from("target/debug/main"),
-    //     String::from(
-    //         "/home/ikripaka/Documents/learning-rust/discrete_logarithm_problem/cp_2_input.csv",
-    //     ),
-    // ];
 
     let arguments = Arguments::new(&args).unwrap_or_else(|err| {
         eprintln!("{} problem parsing arguments: {}", program, err);

@@ -2,7 +2,8 @@ use crate::factorize::factorize_number;
 use num_bigint::BigInt;
 use num_traits::{One, ToPrimitive, Zero};
 use std::collections::HashMap;
-use std::ptr::eq;
+use std::process;
+use crate::factor_algorithms::is_prime;
 
 // x = a (mod n)
 #[derive(Clone, Debug)]
@@ -24,6 +25,12 @@ pub fn silver_pohlig_hellman<'a>(
     {
         return Err("values overflow u128, try to put smaller numbers");
     };
+    if !is_prime(&n.to_u128().unwrap(), &50).unwrap_or_else(|err| {
+        eprintln!("problem with checking n for prime: {}", err);
+        process::exit(0);
+    }) {
+        return Err("n is not prime");
+    }
 
     // factorizing number "n-1"
     let mut module_factor = factorize_number(&(n - BigInt::one()).to_u128().unwrap(), false);
@@ -83,7 +90,7 @@ pub fn silver_pohlig_hellman<'a>(
         }
 
         if verbose {
-            println!("Power hashmap:{:?}", pow_map);
+            println!("Power hashmap Hashmap < p_i, l_i >:{:?}", pow_map);
         }
 
         precalculated_tables.insert(key.clone(), pow_map);
@@ -133,7 +140,7 @@ pub fn silver_pohlig_hellman<'a>(
         })
     }
     if verbose {
-        println!("Precalculated tables: {:?}", precalculated_tables);
+        println!("Precalculated tables (Hashmap < p_i, Hashmap< r_ij , j > >) : {:?}", precalculated_tables);
         println!("Equations x = a (mod n) : {:?}", equations);
     }
 
@@ -161,7 +168,7 @@ fn solve_equations(
         m *= &equation.n;
     }
     for i in 0..equations_vec.len() {
-        m_i[i] = &m/&equations_vec[i].n;
+        m_i[i] = &m / &equations_vec[i].n;
     }
 
     let mut n_i = Vec::new();
@@ -233,9 +240,9 @@ fn inverse(a: &BigInt, n: &BigInt) -> Result<BigInt, &'static str> {
 mod tests {
     use crate::dlp_algorithms::{inverse, silver_pohlig_hellman};
     use num_bigint::BigInt;
-    use num_traits::Zero;
+    use num_traits::{One, ToPrimitive, Zero};
     use std::time::Instant;
-    use std::u128::MAX;
+    use crate::factorize::factorize_number;
 
     #[test]
     fn silver_pohlig_test() {
@@ -307,11 +314,6 @@ mod tests {
                     BigInt::zero()
                 })
         );
-        // println!("{}", MAX);
-        // println!("{}", silver_pohlig_hellman(&BigInt::from(10_u128), &BigInt::from(13_u128), &BigInt::from(MAX)).unwrap_or_else(|err| {
-        //     eprintln!("an error occurred {}", err);
-        //     BigInt::zero()
-        // }));
     }
 
     #[test]
@@ -404,25 +406,95 @@ mod tests {
         }
     }
 
+    //wait for 15 minutes to complete
     #[test]
     fn silver_pohlig_hellman_test_one() {
-        let input_numbers = vec![(
-            BigInt::from(2_u128),
-            BigInt::from(1_u128),
-            BigInt::from(3_u128),
-        )];
+        let input_numbers = vec![
+            (
+                BigInt::from(70425_u128),
+                BigInt::from(4498_u128),
+                BigInt::from(98929_u128),
+            ),
+            (
+                BigInt::from(79791_u128),
+                BigInt::from(7727_u128),
+                BigInt::from(106621_u128),
+            ),
+            (
+                BigInt::from(5347363_u128),
+                BigInt::from(1393557_u128),
+                BigInt::from(5794511_u128),
+            ),
+            (
+                BigInt::from(32012782_u128),
+                BigInt::from(4740726_u128),
+                BigInt::from(37545943_u128),
+            ),
+            (
+                BigInt::from(431663093_u128),
+                BigInt::from(527715071_u128),
+                BigInt::from(633337597_u128),
+            ),
+            (
+                BigInt::from(5710238076_u128),
+                BigInt::from(5213445017_u128),
+                BigInt::from(6390644171_u128),
+            ),
+            (
+                BigInt::from(62169854910_u128),
+                BigInt::from(86077798599_u128),
+                BigInt::from(92995695997_u128),
+            ),
+            // (
+            //     BigInt::from(71428636448_u128),
+            //     BigInt::from(180199541342_u128),
+            //     BigInt::from(584842224173_u128),
+            // ),
+            // (
+            //     BigInt::from(4313558325450_u128),
+            //     BigInt::from(6380632412530_u128),
+            //     BigInt::from(9577259708671_u128),
+            // ),
+            // (
+            //     BigInt::from(13637999129366_u128),
+            //     BigInt::from(2111433979175_u128),
+            //     BigInt::from(15710549366693_u128),
+            // ),
+            // (
+            //     BigInt::from(187165199375552_u128),
+            //     BigInt::from(22166621073359_u128),
+            //     BigInt::from(336305574949727_u128),
+            // ),
+            (
+                BigInt::from(2629622656603408_u128),
+                BigInt::from(3806920734785279_u128),
+                BigInt::from(3821293645373207_u128),
+            ),
+            (
+                BigInt::from(31359535267603010_u128),
+                BigInt::from(3969189589541717_u128),
+                BigInt::from(91983358119398483_u128),
+            ),
+            (
+                BigInt::from(107477375094958706_u128),
+                BigInt::from(438527732551443546_u128),
+                BigInt::from(487855528855682401_u128),
+            ),
+        ];
         println!("Silver Pohlig Hellman bench test:");
 
-        let input_data = &input_numbers[0];
-        let now1 = Instant::now();
-        println!(
-            "number: {:?}, duration:{:?},\n log {} ({}) mod {} = {}",
-            input_numbers[0],
-            now1.elapsed(),
-            &input_data.0,
-            &input_data.1,
-            &input_data.2,
-            silver_pohlig_hellman(&input_data.0, &input_data.1, &input_data.2, true).unwrap()
-        );
+        for input_data in input_numbers.iter() {
+            let now1 = Instant::now();
+            println!(
+                "number: {:?},\n log {} ({}) mod {} = {}, duration:{:?}, factor(n-1):{:?}",
+                input_data,
+                &input_data.0,
+                &input_data.1,
+                &input_data.2,
+                silver_pohlig_hellman(&input_data.0, &input_data.1, &input_data.2, false).unwrap(),
+                now1.elapsed(),
+                factorize_number(&(&input_data.2 - BigInt::one()).to_u128().unwrap(), false)
+            );
+        }
     }
 }
