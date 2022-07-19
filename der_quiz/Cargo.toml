@@ -1,0 +1,11 @@
+[package]
+name = "der_quiz"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+regex = "1"
+sha2 = "0.10.2"
+openssl = { version = "0.10", features = ["vendored"] }

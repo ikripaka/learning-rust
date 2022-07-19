@@ -23,6 +23,8 @@ coverage/
 
 ./target
 
+target/
+
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
