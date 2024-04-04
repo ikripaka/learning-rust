@@ -6,6 +6,7 @@ use std::num::ParseIntError;
 
 mod bigint;
 mod biguint;
+mod helpers;
 
 pub use bigint::BigInt;
 pub use biguint::BigUint;
@@ -16,7 +17,7 @@ pub(crate) type DoubleDigit = u128;
 pub enum ParseBigUintErr {
     UnhandledRadix(u32),
     IncorrectSymbol((bool, String)),
-    UnableToParseInt(String)
+    UnableToParseInt(String),
 }
 
 impl Debug for ParseBigUintErr {
@@ -44,7 +45,7 @@ impl Display for ParseBigUintErr {
 
 impl Error for ParseBigUintErr {}
 
-impl From<ParseIntError> for ParseBigUintErr{
+impl From<ParseIntError> for ParseBigUintErr {
     fn from(value: ParseIntError) -> Self {
         ParseBigUintErr::UnableToParseInt(format!("{value}"))
     }
