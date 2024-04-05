@@ -3,6 +3,7 @@ pub(crate) mod conversion;
 mod division;
 mod multiplication;
 mod subtraction;
+mod helpers;
 
 use crate::biguint::conversion::{
     parse_from_bit_str, parse_from_byte_slice, parse_from_hex_str, to_binary, to_lower_hex,
@@ -16,6 +17,7 @@ use std::fmt;
 use std::fmt::Formatter;
 use std::hash::Hasher;
 use std::ops::{AddAssign, DivAssign, MulAssign, RemAssign, SubAssign};
+use crate::biguint::helpers::fit;
 
 #[derive(Hash, Clone, Eq)]
 pub struct BigUint {
@@ -23,12 +25,15 @@ pub struct BigUint {
 }
 
 impl BigUint {
-    //todo: create from method that would trim zeros
     pub fn from_bytes_radix(data: &[u8], radix: u32) -> Result<Self, ParseBigUintErr> {
-        Ok(match radix {
-            2 => parse_from_byte_slice(data)?,
-            16 => parse_from_byte_slice(data)?,
-            _ => return Err(ParseBigUintErr::UnhandledRadix(radix)),
+        Ok({
+            let mut n = match radix {
+                2 => parse_from_byte_slice(data)?,
+                16 => parse_from_byte_slice(data)?,
+                _ => return Err(ParseBigUintErr::UnhandledRadix(radix)),
+            };
+            n.fit();
+            n
         })
     }
 
@@ -42,6 +47,11 @@ impl BigUint {
 
     pub fn to_binary_string(&self) -> String {
         to_binary(self)
+    }
+
+    /// **fit** -- deletes redundant zeros at the end of vec
+    fn fit(&mut self){
+        fit(self)
     }
 
     // implement as an idea creation from PackedStruct slice
@@ -81,23 +91,28 @@ impl Num for BigUint {
         if str.is_empty() {
             return Ok(BigUint::zero());
         }
-        Ok(match radix {
-            2 => parse_from_bit_str(str)?,
-            16 => parse_from_hex_str(str)?,
-            _ => return Err(ParseBigUintErr::UnhandledRadix(radix)),
+        Ok({
+            let mut n = match radix {
+                2 => parse_from_bit_str(str)?,
+                16 => parse_from_hex_str(str)?,
+                _ => return Err(ParseBigUintErr::UnhandledRadix(radix)),
+            };
+            n.fit();
+            n
         })
     }
 }
 
 impl PartialEq<Self> for BigUint {
     fn eq(&self, other: &Self) -> bool {
-        todo!()
+        self.data.eq(&other.data)
     }
 }
 
 impl PartialOrd<Self> for BigUint {
+    /// in our situations **partial_cmp** is possible in all cases, so we don't have to use None
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        todo!()
+        partial_cmp(&self, other)
     }
 }
 
@@ -115,7 +130,7 @@ impl Default for BigUint {
 
 impl fmt::Debug for BigUint {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", format!("{:8X?}", self.data))
+        write!(f, "{}", format!("{:X?}", self.data))
     }
 }
 

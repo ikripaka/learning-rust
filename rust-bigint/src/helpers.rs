@@ -14,3 +14,5 @@ pub fn get_string_hex_array(arr: &[u8]) -> String {
     res = res.trim_end_matches(']').to_string();
     res
 }
+
+

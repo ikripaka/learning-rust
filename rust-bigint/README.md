@@ -18,3 +18,5 @@ Minimal Rust version -- 1.77.1
         [dependencies]
         cryptolib = {path = "/rust-biguint"}
     ```
+   
+time spent: 3 + 4 + 1 + 1.5 + 
