@@ -1,14 +1,15 @@
 mod addition;
 pub(crate) mod conversion;
 mod division;
+mod helpers;
 mod multiplication;
 mod subtraction;
-mod helpers;
 
 use crate::biguint::conversion::{
     parse_from_bit_str, parse_from_byte_slice, parse_from_hex_str, to_binary, to_lower_hex,
     to_octal, to_upper_hex,
 };
+use crate::biguint::helpers::{fit, partial_cmp};
 use crate::{Digit, ParseBigUintErr};
 use core::hash;
 use num_traits::{Num, NumAssignOps, NumAssignRef, NumOps, NumRef, One, RefNum, Zero};
@@ -17,7 +18,6 @@ use std::fmt;
 use std::fmt::Formatter;
 use std::hash::Hasher;
 use std::ops::{AddAssign, DivAssign, MulAssign, RemAssign, SubAssign};
-use crate::biguint::helpers::fit;
 
 #[derive(Hash, Clone, Eq)]
 pub struct BigUint {
@@ -50,7 +50,7 @@ impl BigUint {
     }
 
     /// **fit** -- deletes redundant zeros at the end of vec
-    fn fit(&mut self){
+    fn fit(&mut self) {
         fit(self)
     }
 

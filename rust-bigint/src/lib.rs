@@ -14,6 +14,7 @@ pub use biguint::BigUint;
 pub(crate) type Digit = u64;
 pub(crate) type DoubleDigit = u128;
 
+const BASE: u128 = 1 << 64;
 pub enum ParseBigUintErr {
     UnhandledRadix(u32),
     IncorrectSymbol((bool, String)),
