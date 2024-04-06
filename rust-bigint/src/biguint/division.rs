@@ -5,7 +5,7 @@ impl Div<BigUint> for BigUint {
     type Output = BigUint;
 
     fn div(self, rhs: BigUint) -> Self::Output {
-        todo!()
+        self / &rhs
     }
 }
 impl Div<&BigUint> for BigUint {
@@ -20,7 +20,7 @@ impl Rem<BigUint> for BigUint {
     type Output = BigUint;
 
     fn rem(self, rhs: BigUint) -> Self::Output {
-        todo!()
+        self % &rhs
     }
 }
 impl Rem<&BigUint> for BigUint {
@@ -33,24 +33,28 @@ impl Rem<&BigUint> for BigUint {
 
 impl DivAssign<BigUint> for BigUint {
     fn div_assign(&mut self, rhs: BigUint) {
-        todo!()
+        let res = self.clone() / &rhs;
+        self.data = res.data
     }
 }
 
 impl DivAssign<&BigUint> for BigUint {
     fn div_assign(&mut self, rhs: &BigUint) {
-        todo!()
+        let res = self.clone() / rhs;
+        self.data = res.data
     }
 }
 
 impl RemAssign<BigUint> for BigUint {
     fn rem_assign(&mut self, rhs: BigUint) {
-        todo!()
+        let res = self.clone() % &rhs;
+        self.data = res.data
     }
 }
 
 impl RemAssign<&BigUint> for BigUint {
     fn rem_assign(&mut self, rhs: &BigUint) {
-        todo!()
+        let res = self.clone() % rhs;
+        self.data = res.data
     }
 }

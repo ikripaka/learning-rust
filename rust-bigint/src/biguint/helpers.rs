@@ -12,6 +12,9 @@ pub(crate) fn fit(x: &mut BigUint) {
     }
     if let Some(index) = cleanup_index {
         for i in (index..x.data.len()).rev() {
+            if x.data.len() == 1{
+                break
+            }
             let _ = x.data.remove(i);
         }
     }
@@ -21,19 +24,21 @@ pub(crate) fn fit(x: &mut BigUint) {
 /// _x_ -- bigger one
 /// _y_ -- has to have length that is less or equal to _x_ one
 pub(crate) fn compare_slices(x: &[Digit], y: &[Digit]) -> Ordering {
-    let mut i = 0;
-    for d in y.iter() {
-        if x[i] == *d {
-            i += 1
-        }
+    let mut i = y.len() as i64 - 1;
+    while match x.get(i as usize){
+        None => 0,
+        Some(res) => *res
+    } == y[i as usize]{
+        i -= 1
     }
-    if i == x.len() {
+
+    if i == -1 {
         Ordering::Equal
     } else {
-        match y.get(i) {
+        match y.get(i as usize) {
             None => Ordering::Greater,
             Some(d) => {
-                if x[i] > *d {
+                if x[i as usize] > *d {
                     Ordering::Greater
                 } else {
                     Ordering::Less
@@ -44,9 +49,9 @@ pub(crate) fn compare_slices(x: &[Digit], y: &[Digit]) -> Ordering {
 }
 
 /// **partial_cmp** -- compares both BigUint values
-pub(crate) fn partial_cmp(x: &BigUint, y: &BigUint) -> Option<Ordering> {
+pub(crate) fn partial_cmp(x: &BigUint, y: &BigUint) -> Ordering {
     if x != y {
-        Some(if x.data.len() > y.data.len() {
+        if x.data.len() > y.data.len() {
             compare_slices(&x.data, &y.data)
         } else {
             match compare_slices(&y.data, &x.data) {
@@ -54,8 +59,8 @@ pub(crate) fn partial_cmp(x: &BigUint, y: &BigUint) -> Option<Ordering> {
                 Ordering::Equal => Ordering::Equal,
                 Ordering::Greater => Ordering::Less,
             }
-        })
+        }
     } else {
-        Some(Ordering::Equal)
+        Ordering::Equal
     }
 }

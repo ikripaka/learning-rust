@@ -40,9 +40,13 @@ impl Sub<&BigUint> for BigUint {
 
     /// **sub** -- swaps arguments and performs subtraction to minimize errors
     fn sub(self, rhs: &BigUint) -> Self::Output {
-        let data = match self.data.len() > rhs.data.len() {
-            true => sub(&self.data, &rhs.data),
-            false => sub(&rhs.data, &self.data),
+        let data = if self > *rhs {
+            sub(&rhs.data, &self.data)
+        } else if self < *rhs {
+            panic!("Subtraction overflow, lhs is bigger than rhs");
+            // sub(&self.data, &rhs.data)
+        } else {
+            vec![0]
         };
         let mut n = BigUint { data };
         n.fit();

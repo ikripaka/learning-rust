@@ -5,7 +5,7 @@ impl Mul<BigUint> for BigUint {
     type Output = BigUint;
 
     fn mul(self, rhs: BigUint) -> Self::Output {
-        todo!()
+        self * &rhs
     }
 }
 
@@ -18,14 +18,20 @@ impl Mul<&BigUint> for BigUint {
 }
 impl MulAssign<&BigUint> for BigUint {
     fn mul_assign(&mut self, rhs: &BigUint) {
-        todo!()
+        let res = self.clone() * rhs;
+        self.data = res.data;
     }
 }
 
 impl MulAssign<BigUint> for BigUint {
     fn mul_assign(&mut self, rhs: BigUint) {
-        todo!()
+        let res = self.clone() * &rhs;
+        self.data = res.data;
     }
+}
+
+fn ordinary_mul(lhs: &BigUint, rhs: &BigUint) -> BigUint {
+    todo!()
 }
 
 // < 100_000 digits

@@ -98,7 +98,9 @@ impl Num for BigUint {
                 _ => return Err(ParseBigUintErr::UnhandledRadix(radix)),
             };
             n.fit();
-            n
+
+                n
+
         })
     }
 }
@@ -112,13 +114,13 @@ impl PartialEq<Self> for BigUint {
 impl PartialOrd<Self> for BigUint {
     /// in our situations **partial_cmp** is possible in all cases, so we don't have to use None
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        partial_cmp(&self, other)
+        Some(partial_cmp(&self, other))
     }
 }
 
 impl Ord for BigUint {
     fn cmp(&self, other: &Self) -> Ordering {
-        todo!()
+        partial_cmp(&self, other)
     }
 }
 
