@@ -16,10 +16,3 @@ pub fn get_string_hex_array(arr: &[u8]) -> String {
     res = res.trim_end_matches(']').to_string();
     res
 }
-
-pub fn long_shift_digits_high(slice: &[Digit]) -> Vec<Digit>{
-    vec![]
-}
-pub fn long_shift_digits_low(slice: &[Digit]) -> Vec<Digit>{
-    vec![]
-}

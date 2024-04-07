@@ -15,6 +15,7 @@ pub(crate) type Digit = u64;
 pub(crate) type DoubleDigit = u128;
 
 const BASE: u128 = 1 << 64;
+const BITS_IN_BASE: u128 = 64;
 pub enum ParseBigUintErr {
     UnhandledRadix(u32),
     IncorrectSymbol((bool, String)),

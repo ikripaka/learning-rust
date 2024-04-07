@@ -3,6 +3,7 @@ pub(crate) mod conversion;
 mod division;
 mod helpers;
 mod multiplication;
+mod shift;
 mod subtraction;
 
 use crate::biguint::conversion::{
@@ -99,8 +100,7 @@ impl Num for BigUint {
             };
             n.fit();
 
-                n
-
+            n
         })
     }
 }

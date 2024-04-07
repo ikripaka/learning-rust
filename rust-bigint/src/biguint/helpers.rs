@@ -12,8 +12,8 @@ pub(crate) fn fit(x: &mut BigUint) {
     }
     if let Some(index) = cleanup_index {
         for i in (index..x.data.len()).rev() {
-            if x.data.len() == 1{
-                break
+            if x.data.len() == 1 {
+                break;
             }
             let _ = x.data.remove(i);
         }
@@ -25,10 +25,11 @@ pub(crate) fn fit(x: &mut BigUint) {
 /// _y_ -- has to have length that is less or equal to _x_ one
 pub(crate) fn compare_slices(x: &[Digit], y: &[Digit]) -> Ordering {
     let mut i = y.len() as i64 - 1;
-    while match x.get(i as usize){
+    while match x.get(i as usize) {
         None => 0,
-        Some(res) => *res
-    } == y[i as usize]{
+        Some(res) => *res,
+    } == y[i as usize]
+    {
         i -= 1
     }
 

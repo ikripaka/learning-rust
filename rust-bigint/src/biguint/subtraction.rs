@@ -10,7 +10,7 @@ fn sub(x: &[Digit], y: &[Digit]) -> Vec<Digit> {
         }
     };
 
-    let (mut borrow, mut i, mut data) = (false, 0, vec![]);
+    let (mut borrow, mut i, mut data) = (false, 0, Vec::with_capacity(y.len()));
 
     for (j, d) in y.iter().enumerate() {
         let (tmp, borrow_1) = subtract(*d, x[j]);
