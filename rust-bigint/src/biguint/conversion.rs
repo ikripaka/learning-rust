@@ -93,7 +93,7 @@ pub(crate) fn to_lower_hex(x: &BigUint) -> String {
     tmp.reverse();
     let tmp = tmp
         .iter()
-        .map(|x| format!("{:02x?}", x))
+        .map(|x| format!("{:016x?}", x))
         .collect::<Vec<String>>();
     let tmp = tmp.iter().fold(String::new(), |mut acc, x| {
         acc += &x;

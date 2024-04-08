@@ -14,7 +14,7 @@ fn add(x: &[Digit], y: &[Digit]) -> Vec<Digit> {
         i += 1
     }
     for j in i..x.len() {
-        let (tmp, carry_1) = x[j].overflowing_sub(carry as u64);
+        let (tmp, carry_1) = x[j].overflowing_add(carry as u64);
         data.push(tmp);
         carry = carry_1;
     }

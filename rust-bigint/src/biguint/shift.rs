@@ -1,8 +1,5 @@
-use crate::{BigUint, Digit, BITS_IN_BASE};
-use std::ops::{Shl, Shr};
-
-/// **BASE_BIT_MASK** -- 64 bit mask for extracting certain amount of num
-const BASE_BIT_MASK: u128 = 0xFFFF_FFFF_FFFF_FFFF;
+use crate::{BigUint, Digit, BASE_BIT_MASK, BITS_IN_BASE};
+use std::ops::{Shl, ShlAssign, Shr, ShrAssign};
 
 pub fn long_shift_left(slice: &[Digit], shift: u128) -> Vec<Digit> {
     let digit_offset = shift % BITS_IN_BASE;
@@ -43,6 +40,102 @@ pub fn long_shift_right(slice: &[Digit], shift: u128) -> Vec<Digit> {
     res
 }
 
+impl ShlAssign<u128> for BigUint {
+    fn shl_assign(&mut self, rhs: u128) {
+        let data = long_shift_left(&self.data, rhs);
+        self.data = data;
+        self.fit()
+    }
+}
+impl ShlAssign<u64> for BigUint {
+    fn shl_assign(&mut self, rhs: u64) {
+        let data = long_shift_left(&self.data, rhs as u128);
+        self.data = data;
+        self.fit()
+    }
+}
+impl ShlAssign<u32> for BigUint {
+    fn shl_assign(&mut self, rhs: u32) {
+        let data = long_shift_left(&self.data, rhs as u128);
+        self.data = data;
+        self.fit()
+    }
+}
+impl ShlAssign<u16> for BigUint {
+    fn shl_assign(&mut self, rhs: u16) {
+        let data = long_shift_left(&self.data, rhs as u128);
+        self.data = data;
+        self.fit()
+    }
+}
+impl ShlAssign<u8> for BigUint {
+    fn shl_assign(&mut self, rhs: u8) {
+        let data = long_shift_left(&self.data, rhs as u128);
+        self.data = data;
+        self.fit()
+    }
+}
+
+impl ShrAssign<u128> for BigUint {
+    fn shr_assign(&mut self, rhs: u128) {
+        let data = long_shift_left(&self.data, rhs);
+        self.data = data;
+        self.fit()
+    }
+}
+
+impl ShrAssign<u64> for BigUint {
+    fn shr_assign(&mut self, rhs: u64) {
+        let data = long_shift_left(&self.data, rhs as u128);
+        self.data = data;
+        self.fit()
+    }
+}
+impl ShrAssign<u32> for BigUint {
+    fn shr_assign(&mut self, rhs: u32) {
+        let data = long_shift_left(&self.data, rhs as u128);
+        self.data = data;
+        self.fit()
+    }
+}
+impl ShrAssign<u16> for BigUint {
+    fn shr_assign(&mut self, rhs: u16) {
+        let data = long_shift_left(&self.data, rhs as u128);
+        self.data = data;
+        self.fit()
+    }
+}
+impl ShrAssign<u8> for BigUint {
+    fn shr_assign(&mut self, rhs: u8) {
+        let data = long_shift_left(&self.data, rhs as u128);
+        self.data = data;
+        self.fit()
+    }
+}
+
+impl Shl<u128> for BigUint {
+    type Output = BigUint;
+
+    fn shl(self, rhs: u128) -> Self::Output {
+        let mut n = BigUint {
+            data: long_shift_left(&self.data, rhs),
+        };
+        n.fit();
+        n
+    }
+}
+
+impl Shr<u128> for BigUint {
+    type Output = BigUint;
+
+    fn shr(self, rhs: u128) -> Self::Output {
+        let mut n = BigUint {
+            data: long_shift_right(&self.data, rhs),
+        };
+        n.fit();
+        n
+    }
+}
 impl Shl<u64> for BigUint {
     type Output = BigUint;
 

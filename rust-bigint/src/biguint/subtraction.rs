@@ -40,11 +40,9 @@ impl Sub<&BigUint> for BigUint {
 
     /// **sub** -- swaps arguments and performs subtraction to minimize errors
     fn sub(self, rhs: &BigUint) -> Self::Output {
+        assert!(self < *rhs, "Subtraction overflow, lhs is bigger than rhs");
         let data = if self > *rhs {
             sub(&rhs.data, &self.data)
-        } else if self < *rhs {
-            panic!("Subtraction overflow, lhs is bigger than rhs");
-            // sub(&self.data, &rhs.data)
         } else {
             vec![0]
         };

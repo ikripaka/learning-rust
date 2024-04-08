@@ -16,6 +16,9 @@ pub(crate) type DoubleDigit = u128;
 
 const BASE: u128 = 1 << 64;
 const BITS_IN_BASE: u128 = 64;
+
+/// **BASE_BIT_MASK** -- 64 bit mask for extracting certain amount of num
+const BASE_BIT_MASK: u128 = 0xFFFF_FFFF_FFFF_FFFF;
 pub enum ParseBigUintErr {
     UnhandledRadix(u32),
     IncorrectSymbol((bool, String)),
