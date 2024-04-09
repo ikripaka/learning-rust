@@ -13,7 +13,7 @@ fn sub(x: &[Digit], y: &[Digit]) -> Vec<Digit> {
     let (mut borrow, mut i, mut data) = (false, 0, Vec::with_capacity(y.len()));
 
     for (j, d) in y.iter().enumerate() {
-        let (tmp, borrow_1) = subtract(*d, x[j]);
+        let (tmp, borrow_1) = subtract(x[j], *d);
         let (tmp, borrow_2) = subtract(tmp, borrow as u64);
         data.push(tmp);
         borrow = borrow_1 || borrow_2;
@@ -40,9 +40,12 @@ impl Sub<&BigUint> for BigUint {
 
     /// **sub** -- swaps arguments and performs subtraction to minimize errors
     fn sub(self, rhs: &BigUint) -> Self::Output {
-        assert!(self < *rhs, "Subtraction overflow, lhs is bigger than rhs");
+        assert!(
+            !(self < *rhs),
+            "Subtraction overflow, lhs is bigger than rhs"
+        );
         let data = if self > *rhs {
-            sub(&rhs.data, &self.data)
+            sub(&self.data, &rhs.data)
         } else {
             vec![0]
         };

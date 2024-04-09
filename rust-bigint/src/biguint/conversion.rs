@@ -1,5 +1,5 @@
-use crate::{BigUint, ParseBigUintErr};
-use num_traits::Zero;
+use crate::{BigUint, ParseBigUintErr, BITS_IN_BASE};
+use num_traits::{ToPrimitive, Zero};
 use std::fmt::format;
 use std::mem;
 
@@ -127,5 +127,39 @@ pub(crate) fn to_octal(x: &BigUint) -> String {
         "0".to_string()
     } else {
         x.to_string()
+    }
+}
+
+impl ToPrimitive for BigUint {
+    fn to_i64(&self) -> Option<i64> {
+        self.to_u64().and_then(|x| x.to_i64())
+    }
+
+    fn to_i128(&self) -> Option<i128> {
+        self.to_u128().and_then(|x| x.to_i128())
+    }
+
+    fn to_u64(&self) -> Option<u64> {
+        let (mut x, mut bits_filled) = (0, 0);
+        for d in &self.data {
+            if bits_filled > BITS_IN_BASE {
+                return None;
+            }
+            x = *d;
+            bits_filled += BITS_IN_BASE;
+        }
+        Some(x)
+    }
+
+    fn to_u128(&self) -> Option<u128> {
+        let (mut x, mut bits_filled) = (0, 0);
+        for (i, d) in self.data.iter().enumerate() {
+            if bits_filled > BITS_IN_BASE * 2 {
+                return None;
+            }
+            x = x | ((*d as u128) << (i as u128 * BITS_IN_BASE));
+            bits_filled += BITS_IN_BASE;
+        }
+        Some(x)
     }
 }

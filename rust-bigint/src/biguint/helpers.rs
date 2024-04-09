@@ -23,7 +23,13 @@ pub(crate) fn fit(x: &mut BigUint) {
 /// **compare_slices** -- compares Digit slices by comparing _y_ slice with _x_ directly
 /// _x_ -- bigger one
 /// _y_ -- has to have length that is less or equal to _x_ one
-pub(crate) fn compare_slices(x: &[Digit], y: &[Digit]) -> Ordering {
+fn compare_slices(x: &[Digit], y: &[Digit]) -> Ordering {
+    if x.len() > y.len() {
+        return Ordering::Greater;
+    } else if x.len() < y.len() {
+        return Ordering::Less;
+    }
+
     let mut i = y.len() as i64 - 1;
     while match x.get(i as usize) {
         None => 0,
@@ -52,14 +58,14 @@ pub(crate) fn compare_slices(x: &[Digit], y: &[Digit]) -> Ordering {
 /// **partial_cmp** -- compares both BigUint values
 pub(crate) fn partial_cmp(x: &BigUint, y: &BigUint) -> Ordering {
     if x != y {
-        if x.data.len() > y.data.len() {
-            compare_slices(&x.data, &y.data)
-        } else {
+        if x.data.len() < y.data.len() {
             match compare_slices(&y.data, &x.data) {
                 Ordering::Less => Ordering::Greater,
                 Ordering::Equal => Ordering::Equal,
                 Ordering::Greater => Ordering::Less,
             }
+        } else {
+            compare_slices(&x.data, &y.data)
         }
     } else {
         Ordering::Equal

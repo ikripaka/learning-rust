@@ -19,4 +19,4 @@ Minimal Rust version -- 1.77.1
         cryptolib = {path = "/rust-biguint"}
     ```
    
-time spent: 3 + 4 + 1 + 1.5 + 1.5 + 3 + 2
+time spent: 3 + 4 + 1 + 1.5 + 1.5 + 3 + 2 + 4 + 1
