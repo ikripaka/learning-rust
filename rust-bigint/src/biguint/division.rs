@@ -38,6 +38,10 @@ fn calc_bit_len(a: &[Digit]) -> u128 {
     len
 }
 
+fn barret_reduction(a: &BigUint, module: &BigUint) -> BigUint{
+    todo!()
+}
+
 impl Div<BigUint> for BigUint {
     type Output = BigUint;
 
@@ -45,6 +49,7 @@ impl Div<BigUint> for BigUint {
         self / &rhs
     }
 }
+
 impl Div<&BigUint> for BigUint {
     type Output = BigUint;
 
@@ -62,11 +67,14 @@ impl Rem<BigUint> for BigUint {
         self % &rhs
     }
 }
+
 impl Rem<&BigUint> for BigUint {
     type Output = BigUint;
 
     fn rem(self, rhs: &BigUint) -> Self::Output {
-        todo!()
+        let (_, mut r) = divide(&self, rhs);
+        r.fit();
+        r
     }
 }
 

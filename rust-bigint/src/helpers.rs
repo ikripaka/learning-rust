@@ -1,3 +1,4 @@
+use std::mem::size_of;
 use crate::Digit;
 
 pub fn get_string_hex_array_plain(arr: &[u8]) -> String {

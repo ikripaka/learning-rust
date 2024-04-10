@@ -19,6 +19,7 @@ use std::fmt;
 use std::fmt::Formatter;
 use std::hash::Hasher;
 use std::ops::{AddAssign, DivAssign, MulAssign, RemAssign, SubAssign};
+use crate::biguint::multiplication::mod_pow;
 
 #[derive(Hash, Clone, Eq)]
 pub struct BigUint {
@@ -50,12 +51,15 @@ impl BigUint {
         to_binary(self)
     }
 
+    pub fn pow_mod(&self, power: &Self, module: &Self) -> Self{
+        mod_pow(self, power, module)
+    }
+
     /// **fit** -- deletes redundant zeros at the end of vec
     fn fit(&mut self) {
         fit(self)
     }
 
-    // implement as an idea creation from PackedStruct slice
 }
 
 impl Zero for BigUint {

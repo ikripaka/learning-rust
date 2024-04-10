@@ -142,7 +142,7 @@ impl ToPrimitive for BigUint {
     fn to_u64(&self) -> Option<u64> {
         let (mut x, mut bits_filled) = (0, 0);
         for d in &self.data {
-            if bits_filled > BITS_IN_BASE {
+            if !(bits_filled < BITS_IN_BASE) {
                 return None;
             }
             x = *d;
@@ -154,7 +154,7 @@ impl ToPrimitive for BigUint {
     fn to_u128(&self) -> Option<u128> {
         let (mut x, mut bits_filled) = (0, 0);
         for (i, d) in self.data.iter().enumerate() {
-            if bits_filled > BITS_IN_BASE * 2 {
+            if !(bits_filled < BITS_IN_BASE * 2) {
                 return None;
             }
             x = x | ((*d as u128) << (i as u128 * BITS_IN_BASE));

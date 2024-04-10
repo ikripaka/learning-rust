@@ -1,4 +1,5 @@
-use crate::biguint::helpers::fit_u8_vec;
+use crate::biguint::helpers::extract_hex_vec_from_u128;
+use crate::biguint::helpers::{extract_hex_vec_from_biguint, fit_u8_vec};
 use crate::biguint::BigUint;
 use crate::{Digit, DoubleDigit, BASE, BASE_BIT_MASK, BITS_IN_BASE};
 use num_traits::{pow, One, Pow};
@@ -41,7 +42,23 @@ impl Pow<u128> for BigUint {
     type Output = BigUint;
 
     fn pow(self, rhs: u128) -> Self::Output {
-        pow_4_window(&self, rhs)
+        pow_4_window(&self, &extract_hex_vec_from_u128(rhs))
+    }
+}
+
+impl Pow<&BigUint> for BigUint {
+    type Output = BigUint;
+
+    fn pow(self, rhs: &BigUint) -> Self::Output {
+        pow_4_window(&self, &extract_hex_vec_from_biguint(rhs))
+    }
+}
+
+impl Pow<BigUint> for BigUint {
+    type Output = BigUint;
+
+    fn pow(self, rhs: BigUint) -> Self::Output {
+        self.pow(&rhs)
     }
 }
 
@@ -82,30 +99,7 @@ fn mul_fast_fourier_transform(lhs: &BigUint, rhs: &BigUint) -> BigUint {
 }
 
 // implementing sliding window method of powering numbers
-fn pow_4_window(a: &BigUint, power: u128) -> BigUint {
-    //     ArrayList<Integer> C = new ArrayList<>();
-    //         C.add(0, 1);
-    //         ArrayList<Integer>[] window = new ArrayList[16];
-    //         window[0] = new ArrayList();
-    //         window[0].add(1);
-    //         window[1] = A;
-    //
-    //         ArrayList<Integer> powerInHex = convertBase256ToHex(power);
-    //         for (int i = 2; i < 16; i++) {
-    //             window[i] = longMulMod(window[i - 1], A, mod);
-    //         }
-    //
-    //         for (int j = 0; j < powerInHex.size(); j++) {
-    //             C = longMulMod(C, window[powerInHex.get(j)], mod);
-    //
-    //             if (j != powerInHex.size() - 1) {
-    //                 for (int m = 0; m < 4; m++) {
-    //                     C = longMulMod(C, C, mod);
-    //                 }
-    //             }
-    //         }
-    //         return C;
-
+fn pow_4_window(a: &BigUint, power_hex_list: &Vec<u8>) -> BigUint {
     let mut c = BigUint::one();
 
     let mut window = Vec::with_capacity(16);
@@ -114,8 +108,6 @@ fn pow_4_window(a: &BigUint, power: u128) -> BigUint {
     for i in 2..16 {
         window.push(a.clone() * &window[i - 1])
     }
-    let power_hex_list = extract_hex_vec_from_u128(power);
-    let power_hex_list_last = power_hex_list.len() - 1;
     for (j, h) in power_hex_list.iter().enumerate().rev() {
         c *= &window[*h as usize];
         if j != 0 {
@@ -127,18 +119,32 @@ fn pow_4_window(a: &BigUint, power: u128) -> BigUint {
     c
 }
 
-fn extract_hex_vec_from_u128(n: u128) -> Vec<u8> {
-    const HEX_MASK: u128 = 0xF;
-    const HEX_BITS: usize = 4;
+fn pow_mod_4_window(a: &BigUint, power: &BigUint, module: &BigUint) -> BigUint {
+    let mut c = BigUint::one();
 
-    let mut res = Vec::with_capacity(size_of::<u128>() / HEX_BITS);
-    for i in 0..res.capacity() {
-        res.push(((n & (HEX_MASK << (HEX_BITS * i))) >> (HEX_BITS * i)) as u8)
+    let mut window = Vec::with_capacity(16);
+    window.push(BigUint::one());
+    window.push(a.clone() % module);
+    println!("window i:1 {:X}", window[1]);
+    for i in 2..16 {
+        println!("a: {:X}, window: {:X}, module: {:X}", a, window[i-1], module);
+        window.push((a.clone() * &window[i - 1]) % module);
+        println!("window i:{i}: {:X} -- {:X}", window[i], (a.clone() * &window[i - 1]) % module
+        )
     }
-    fit_u8_vec(&mut res);
-    res
+    let power_hex_list = extract_hex_vec_from_biguint(power);
+    for (j, h) in power_hex_list.iter().enumerate().rev() {
+        c = (c * &window[*h as usize]) % module;
+        if j != 0 {
+            for _ in 0..4 {
+                c = (c.clone() * c.clone()) % module
+            }
+        }
+        println!("j: {}, h: {:X}, c: {:X}", j, h, c)
+    }
+    println!("");
+    c
 }
-
-fn mod_pow(num: &BigUint, module: &BigUint, power: u64) -> BigUint {
-    todo!()
+pub(super) fn mod_pow(a: &BigUint, power: &BigUint, module: &BigUint) -> BigUint {
+    pow_mod_4_window(a, power, module)
 }
