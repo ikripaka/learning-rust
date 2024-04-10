@@ -20,6 +20,25 @@ pub(crate) fn fit(x: &mut BigUint) {
     }
 }
 
+pub(crate) fn fit_u8_vec(x: &mut Vec<u8>) {
+    let mut cleanup_index = None;
+    'index_search: for (i, x) in x.iter().enumerate().rev() {
+        if *x == 0 {
+            let _ = cleanup_index.insert(i);
+        } else {
+            break 'index_search;
+        }
+    }
+    if let Some(index) = cleanup_index {
+        for i in (index..x.len()).rev() {
+            if x.len() == 1 {
+                break;
+            }
+            let _ = x.remove(i);
+        }
+    }
+}
+
 /// **compare_slices** -- compares Digit slices by comparing _y_ slice with _x_ directly
 /// _x_ -- bigger one
 /// _y_ -- has to have length that is less or equal to _x_ one
