@@ -11,7 +11,7 @@ use crate::biguint::conversion::{
     to_octal, to_upper_hex,
 };
 use crate::biguint::helpers::{fit, partial_cmp};
-use crate::{Digit, ParseBigUintErr};
+use crate::{BigInt, Digit, ParseBigUintErr};
 use core::hash;
 use num_traits::{Num, NumAssignOps, NumAssignRef, NumOps, NumRef, One, RefNum, Zero};
 use std::cmp::Ordering;
@@ -56,10 +56,13 @@ impl BigUint {
     }
 
     /// **fit** -- deletes redundant zeros at the end of vec
-    fn fit(&mut self) {
+    pub(crate) fn fit(&mut self) {
         fit(self)
     }
 
+    pub fn to_bigint(&self) -> BigInt{
+        todo!()
+    }
 }
 
 impl Zero for BigUint {
