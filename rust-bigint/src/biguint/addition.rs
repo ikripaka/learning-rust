@@ -1,6 +1,7 @@
+use std::ops::{Add, AddAssign};
+
 use crate::biguint::BigUint;
 use crate::Digit;
-use std::ops::{Add, AddAssign};
 
 /// **add** -- adds iterates over right value (that less than left one) and adds both
 ///     values between themselves

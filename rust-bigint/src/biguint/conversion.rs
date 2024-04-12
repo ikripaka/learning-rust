@@ -1,7 +1,6 @@
+use num_traits::ToPrimitive;
+
 use crate::{BigUint, ParseBigUintErr, BITS_IN_BASE};
-use num_traits::{ToPrimitive, Zero};
-use std::fmt::format;
-use std::mem;
 
 const BITS_IN_BYTE: usize = 8;
 const HEX_SYMBOLS_IN_BYTE: usize = 2;
@@ -49,6 +48,7 @@ pub(crate) fn parse_from_bit_str(data: &str) -> Result<BigUint, ParseBigUintErr>
     }
     parse_from_byte_slice(&res)
 }
+
 pub(crate) fn parse_from_byte_slice(data: &[u8]) -> Result<BigUint, ParseBigUintErr> {
     let data = {
         let mut data = data.to_vec();

@@ -1,6 +1,7 @@
+use std::ops::{Sub, SubAssign};
+
 use crate::biguint::BigUint;
 use crate::{Digit, BASE};
-use std::ops::{Sub, SubAssign};
 
 fn sub(x: &[Digit], y: &[Digit]) -> Vec<Digit> {
     let subtract = |x: u64, y: u64| -> (u64, bool) {
@@ -61,6 +62,7 @@ impl SubAssign<BigUint> for BigUint {
         self.data = res.data
     }
 }
+
 impl SubAssign<&BigUint> for BigUint {
     fn sub_assign(&mut self, rhs: &BigUint) {
         let res = self.clone() - rhs;

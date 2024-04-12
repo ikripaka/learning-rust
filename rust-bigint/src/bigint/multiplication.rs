@@ -1,7 +1,9 @@
 use std::ops::{Mul, MulAssign};
-use num_traits::{One, Pow};
-use crate::{BigInt, BigUint};
+
+use num_traits::{One, Pow, Zero};
+
 use crate::bigint::Sign;
+use crate::{BigInt, BigUint};
 
 impl Mul<BigInt> for BigInt {
     type Output = BigInt;
@@ -15,14 +17,18 @@ impl Mul<&BigInt> for BigInt {
     type Output = BigInt;
 
     fn mul(self, rhs: &BigInt) -> Self::Output {
-        BigInt {
+        let x = BigInt {
             sign: match (&self.sign, &rhs.sign) {
                 (Sign::Positive, Sign::Negative) => Sign::Negative,
                 (Sign::Negative, Sign::Positive) => Sign::Negative,
                 (_, _) => Sign::Positive,
             },
             data: self.data * &rhs.data,
+        };
+        if x.sign == Sign::Negative && x.data.is_zero() {
+            return BigInt::zero();
         }
+        x
     }
 }
 
@@ -46,16 +52,22 @@ impl Pow<u128> for BigInt {
     type Output = BigInt;
 
     fn pow(self, rhs: u128) -> Self::Output {
-        BigInt{ sign: {
-            if self.sign == Sign::Negative{
-                match rhs % 2 == 0 {
-                    true => Sign::Positive,
-                    false => Sign::Negative,
+        if rhs.is_zero() {
+            return BigInt::one();
+        }
+        BigInt {
+            sign: {
+                if self.sign == Sign::Negative {
+                    match rhs % 2 == 0 {
+                        true => Sign::Positive,
+                        false => Sign::Negative,
+                    }
+                } else {
+                    Sign::Positive
                 }
-            }else{
-                Sign::Positive
-            }
-        }, data: self.data.pow(rhs) }
+            },
+            data: self.data.pow(rhs),
+        }
     }
 }
 
@@ -63,16 +75,22 @@ impl Pow<&BigUint> for BigInt {
     type Output = BigInt;
 
     fn pow(self, rhs: &BigUint) -> Self::Output {
-        BigInt{ sign: {
-            if let Sign::Negative = self.sign{
-                match !rhs.is_odd() {
-                    true => Sign::Positive,
-                    false => Sign::Negative,
+        if rhs.is_zero() {
+            return BigInt::one();
+        }
+        BigInt {
+            sign: {
+                if let Sign::Negative = self.sign {
+                    match !rhs.is_odd() {
+                        true => Sign::Positive,
+                        false => Sign::Negative,
+                    }
+                } else {
+                    Sign::Positive
                 }
-            }else{
-                Sign::Positive
-            }
-        }, data: self.data.pow(rhs) }
+            },
+            data: self.data.pow(rhs),
+        }
     }
 }
 
@@ -84,7 +102,7 @@ impl Pow<BigUint> for BigInt {
     }
 }
 
-pub(crate) fn pow_mod(a:&BigInt, power: &BigUint, module: &BigUint) -> BigInt{
+pub(crate) fn pow_mod(a: &BigInt, power: &BigUint, module: &BigUint) -> BigInt {
     BigInt {
         sign: Sign::Positive,
         data: get_positive_number(a, module).pow_mod(power, module),
@@ -92,11 +110,11 @@ pub(crate) fn pow_mod(a:&BigInt, power: &BigUint, module: &BigUint) -> BigInt{
 }
 
 /// **get_positive_number** -- transforms (-a) mod n = (k*n - a) mod n
-fn get_positive_number(a: &BigInt, module: &BigUint) -> BigUint{
-    if let Sign::Negative = a.sign{
+fn get_positive_number(a: &BigInt, module: &BigUint) -> BigUint {
+    if let Sign::Negative = a.sign {
         let k = (a.data.clone() / module) + BigUint::one();
         (k * module) - &a.data
-    } else{
+    } else {
         a.data.clone()
     }
 }

@@ -1,23 +1,67 @@
-mod addition;
-mod conversion;
-mod division;
-mod multiplication;
-mod shift;
-mod subtraction;
-mod helpers;
-
 use std::cmp::Ordering;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+
 use num_traits::{Num, One, Zero};
-use crate::biguint::BigUint;
-use crate::biguint::conversion::{parse_from_bit_str, parse_from_hex_str, to_binary, to_lower_hex, to_octal, to_upper_hex};
-use crate::{ParseBigIntErr, ParseBigUintErr};
+
 use crate::bigint::helpers::partial_cmp;
+use crate::bigint::multiplication::pow_mod;
+use crate::biguint::conversion::{
+    parse_from_bit_str, parse_from_byte_slice, parse_from_hex_str, to_binary, to_lower_hex,
+    to_octal, to_upper_hex,
+};
+use crate::biguint::BigUint;
+use crate::{ParseBigIntErr, ParseBigUintErr};
+
+mod addition;
+mod conversion;
+mod division;
+mod helpers;
+mod multiplication;
+mod shift;
+mod subtraction;
 
 impl BigInt {
+    fn from_bytes_radix(data: &[u8], radix: u32) -> Result<Self, ParseBigUintErr> {
+        // if str.is_empty() {
+        //     return Ok(BigInt {
+        //         sign: Sign::Positive,
+        //         data: BigUint::zero(),
+        //     });
+        // }
+        // Ok({
+        //     let (sign, str) = extract_sign(str)?;
+        //     let mut n = match radix {
+        //         2 => parse_from_byte_slice(data)?,
+        //         16 => parse_from_byte_slice(data)?,
+        //         _ => return Err(ParseBigUintErr::UnhandledRadix(radix)),
+        //     };
+        //     n.fit();
+        //     assert!(
+        //         !(n.is_zero() && sign == Sign::Negative),
+        //         "Can't be -0 number"
+        //     );
+        //     BigInt { sign, data: n }
+        // })
+        Ok(BigInt::one())
+    }
     pub fn to_biguint(&self) -> BigUint {
         self.data.clone()
+    }
+
+    pub fn to_lower_hex_string(&self) -> String {
+        format!("{:x}", self)
+    }
+
+    pub fn to_upper_hex_string(&self) -> String {
+        format!("{:X}", self)
+    }
+
+    pub fn to_binary_string(&self) -> String {
+        format!("{:b}", self)
+    }
+    pub fn pow_mod(&self, power: &BigUint, module: &BigUint) -> BigInt {
+        pow_mod(self, power, module)
     }
 }
 
@@ -35,10 +79,14 @@ pub struct BigInt {
 
 impl Display for Sign {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Sign::Positive => "+".to_string(),
-            Sign::Negative => "-".to_string()
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Sign::Positive => "".to_string(),
+                Sign::Negative => "-".to_string(),
+            }
+        )
     }
 }
 
@@ -74,7 +122,10 @@ impl Num for BigInt {
     /// Input has to be in ASCII code.
     fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
         if str.is_empty() {
-            return Ok(BigInt { sign: Sign::Positive, data: BigUint::zero() });
+            return Ok(BigInt {
+                sign: Sign::Positive,
+                data: BigUint::zero(),
+            });
         }
         Ok({
             let (sign, str) = extract_sign(str)?;
@@ -84,10 +135,11 @@ impl Num for BigInt {
                 _ => return Err(ParseBigIntErr::UnhandledRadix(radix)),
             };
             n.fit();
-            BigInt {
-                sign,
-                data: n,
-            }
+            assert!(
+                !(n.is_zero() && sign == Sign::Negative),
+                "Can't be -0 number"
+            );
+            BigInt { sign, data: n }
         })
     }
 }
@@ -101,6 +153,13 @@ fn extract_sign(s: &str) -> Result<(Sign, &str), ParseBigIntErr> {
                 Ok((Sign::Positive, &s[1..]))
             } else if c == '-' {
                 Ok((Sign::Negative, &s[1..]))
+            } else if (c == '0' || c == '1')
+                || (c >= '0' && c <= '9')
+                || (c >= 'a' && c <= 'f')
+                || (c >= 'A' && c <= 'F')
+            {
+                // or insert here regex
+                Ok((Sign::Positive, s))
             } else {
                 Err(ParseBigIntErr::CantParseSign(c.to_string()))
             }

@@ -1,10 +1,11 @@
-use crate::biguint::helpers::extract_hex_vec_from_u128;
-use crate::biguint::helpers::{extract_hex_vec_from_biguint, fit_u8_vec};
-use crate::biguint::BigUint;
-use crate::{Digit, DoubleDigit, BASE, BASE_BIT_MASK, BITS_IN_BASE};
-use num_traits::{pow, One, Pow};
-use std::mem::size_of;
 use std::ops::{Mul, MulAssign};
+
+use num_traits::{One, Pow};
+
+use crate::biguint::helpers::extract_hex_vec_from_biguint;
+use crate::biguint::helpers::extract_hex_vec_from_u128;
+use crate::biguint::BigUint;
+use crate::{Digit, DoubleDigit, BASE_BIT_MASK, BITS_IN_BASE};
 
 impl Mul<BigUint> for BigUint {
     type Output = BigUint;
@@ -139,6 +140,7 @@ fn pow_mod_4_window(a: &BigUint, power: &BigUint, module: &BigUint) -> BigUint {
     }
     c
 }
+
 pub(super) fn mod_pow(a: &BigUint, power: &BigUint, module: &BigUint) -> BigUint {
     pow_mod_4_window(a, power, module)
 }

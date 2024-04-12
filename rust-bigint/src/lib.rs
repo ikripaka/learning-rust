@@ -4,12 +4,12 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::num::ParseIntError;
 
+pub use bigint::BigInt;
+pub use biguint::BigUint;
+
 mod bigint;
 mod biguint;
 mod helpers;
-
-pub use bigint::BigInt;
-pub use biguint::BigUint;
 
 pub(crate) type Digit = u64;
 pub(crate) type DoubleDigit = u128;
@@ -21,19 +21,19 @@ const BITS_IN_BASE: u128 = 64;
 const BASE_BIT_MASK: u128 = 0xFFFF_FFFF_FFFF_FFFF;
 
 #[derive(Debug)]
-pub enum ParseBigIntErr{
+pub enum ParseBigIntErr {
     CantParseSign(String),
     UnhandledRadix(u32),
     IncorrectSymbol((bool, String)),
     UnableToParseInt(String),
 }
 
-impl From<ParseBigUintErr> for ParseBigIntErr{
+impl From<ParseBigUintErr> for ParseBigIntErr {
     fn from(value: ParseBigUintErr) -> Self {
-        match value{
+        match value {
             ParseBigUintErr::UnhandledRadix(x) => ParseBigIntErr::UnhandledRadix(x),
             ParseBigUintErr::IncorrectSymbol(x) => ParseBigIntErr::IncorrectSymbol(x),
-            ParseBigUintErr::UnableToParseInt(x) => ParseBigIntErr::UnableToParseInt(x)
+            ParseBigUintErr::UnableToParseInt(x) => ParseBigIntErr::UnableToParseInt(x),
         }
     }
 }

@@ -1,3 +1,20 @@
+use std::cmp::Ordering;
+use std::fmt;
+use std::fmt::Formatter;
+use std::hash::Hasher;
+use std::ops::{AddAssign, DivAssign, MulAssign, RemAssign, SubAssign};
+
+use num_traits::{Num, NumAssignOps, NumAssignRef, NumOps, NumRef, One, RefNum, Zero};
+
+use crate::bigint::Sign;
+use crate::biguint::conversion::{
+    parse_from_bit_str, parse_from_byte_slice, parse_from_hex_str, to_binary, to_lower_hex,
+    to_octal, to_upper_hex,
+};
+use crate::biguint::helpers::{fit, partial_cmp};
+use crate::biguint::multiplication::mod_pow;
+use crate::{BigInt, Digit, ParseBigUintErr};
+
 mod addition;
 pub(crate) mod conversion;
 mod division;
@@ -5,22 +22,6 @@ mod helpers;
 mod multiplication;
 mod shift;
 mod subtraction;
-
-use crate::biguint::conversion::{
-    parse_from_bit_str, parse_from_byte_slice, parse_from_hex_str, to_binary, to_lower_hex,
-    to_octal, to_upper_hex,
-};
-use crate::biguint::helpers::{fit, partial_cmp};
-use crate::{BigInt, Digit, ParseBigUintErr};
-use core::hash;
-use num_traits::{Num, NumAssignOps, NumAssignRef, NumOps, NumRef, One, RefNum, Zero};
-use std::cmp::Ordering;
-use std::fmt;
-use std::fmt::Formatter;
-use std::hash::Hasher;
-use std::ops::{AddAssign, DivAssign, MulAssign, RemAssign, SubAssign};
-use crate::bigint::Sign;
-use crate::biguint::multiplication::mod_pow;
 
 #[derive(Hash, Clone, Eq)]
 pub struct BigUint {
@@ -52,7 +53,7 @@ impl BigUint {
         to_binary(self)
     }
 
-    pub fn pow_mod(&self, power: &Self, module: &Self) -> Self{
+    pub fn pow_mod(&self, power: &Self, module: &Self) -> Self {
         mod_pow(self, power, module)
     }
 
@@ -61,13 +62,13 @@ impl BigUint {
         fit(self)
     }
 
-    pub fn to_bigint(&self) -> BigInt{
-        BigInt{
-            sign: Sign::Positive ,
+    pub fn to_bigint(&self) -> BigInt {
+        BigInt {
+            sign: Sign::Positive,
             data: self.clone(),
         }
     }
-    pub(crate) fn is_odd(&self) -> bool{
+    pub(crate) fn is_odd(&self) -> bool {
         self.data[0] & 0x1 == 1
     }
 }

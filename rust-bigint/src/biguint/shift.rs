@@ -1,5 +1,6 @@
-use crate::{BigUint, Digit, BASE_BIT_MASK, BITS_IN_BASE};
 use std::ops::{Shl, ShlAssign, Shr, ShrAssign};
+
+use crate::{BigUint, Digit, BASE_BIT_MASK, BITS_IN_BASE};
 
 pub fn long_shift_left(slice: &[Digit], shift: u128) -> Vec<Digit> {
     let digit_offset = shift % BITS_IN_BASE;
@@ -47,6 +48,7 @@ impl ShlAssign<u128> for BigUint {
         self.fit()
     }
 }
+
 impl ShlAssign<u64> for BigUint {
     fn shl_assign(&mut self, rhs: u64) {
         let data = long_shift_left(&self.data, rhs as u128);
@@ -54,6 +56,7 @@ impl ShlAssign<u64> for BigUint {
         self.fit()
     }
 }
+
 impl ShlAssign<u32> for BigUint {
     fn shl_assign(&mut self, rhs: u32) {
         let data = long_shift_left(&self.data, rhs as u128);
@@ -61,6 +64,7 @@ impl ShlAssign<u32> for BigUint {
         self.fit()
     }
 }
+
 impl ShlAssign<u16> for BigUint {
     fn shl_assign(&mut self, rhs: u16) {
         let data = long_shift_left(&self.data, rhs as u128);
@@ -68,6 +72,7 @@ impl ShlAssign<u16> for BigUint {
         self.fit()
     }
 }
+
 impl ShlAssign<u8> for BigUint {
     fn shl_assign(&mut self, rhs: u8) {
         let data = long_shift_left(&self.data, rhs as u128);
@@ -91,6 +96,7 @@ impl ShrAssign<u64> for BigUint {
         self.fit()
     }
 }
+
 impl ShrAssign<u32> for BigUint {
     fn shr_assign(&mut self, rhs: u32) {
         let data = long_shift_left(&self.data, rhs as u128);
@@ -98,6 +104,7 @@ impl ShrAssign<u32> for BigUint {
         self.fit()
     }
 }
+
 impl ShrAssign<u16> for BigUint {
     fn shr_assign(&mut self, rhs: u16) {
         let data = long_shift_left(&self.data, rhs as u128);
@@ -105,6 +112,7 @@ impl ShrAssign<u16> for BigUint {
         self.fit()
     }
 }
+
 impl ShrAssign<u8> for BigUint {
     fn shr_assign(&mut self, rhs: u8) {
         let data = long_shift_left(&self.data, rhs as u128);
@@ -136,6 +144,7 @@ impl Shr<u128> for BigUint {
         n
     }
 }
+
 impl Shl<u64> for BigUint {
     type Output = BigUint;
 

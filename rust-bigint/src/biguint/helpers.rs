@@ -1,6 +1,7 @@
-use crate::{BigUint, Digit};
 use std::cmp::Ordering;
 use std::mem::size_of;
+
+use crate::{BigUint, Digit};
 
 const HEX_MASK: u128 = 0xF;
 const HEX_BITS: usize = 4;
@@ -105,7 +106,7 @@ pub(crate) fn extract_hex_vec_from_u128(n: u128) -> Vec<u8> {
 }
 
 #[inline]
-fn extract_hex_vec_from_u64(x: u64) -> Vec<u8>{
+fn extract_hex_vec_from_u64(x: u64) -> Vec<u8> {
     vec![
         (x & 0x0000_0000_0000_000F) as u8,
         ((x & 0x0000_0000_0000_00F0) >> (HEX_BITS * 1)) as u8,

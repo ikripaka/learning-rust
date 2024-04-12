@@ -1,7 +1,9 @@
+use std::ops::{Div, DivAssign, Rem, RemAssign};
+
+use num_traits::{One, Zero};
+
 use crate::biguint::BigUint;
 use crate::{Digit, BITS_IN_BASE};
-use num_traits::{One, Zero};
-use std::ops::{Div, DivAssign, Rem, RemAssign};
 
 /// **divide** -- (Quotient, Remainder)
 /// A = B * Q + R, 0 <= R < B
@@ -38,7 +40,7 @@ fn calc_bit_len(a: &[Digit]) -> u128 {
     len
 }
 
-fn barret_reduction(a: &BigUint, module: &BigUint) -> BigUint{
+fn barret_reduction(a: &BigUint, module: &BigUint) -> BigUint {
     todo!()
 }
 
