@@ -19,6 +19,7 @@ use std::fmt;
 use std::fmt::Formatter;
 use std::hash::Hasher;
 use std::ops::{AddAssign, DivAssign, MulAssign, RemAssign, SubAssign};
+use crate::bigint::Sign;
 use crate::biguint::multiplication::mod_pow;
 
 #[derive(Hash, Clone, Eq)]
@@ -61,7 +62,13 @@ impl BigUint {
     }
 
     pub fn to_bigint(&self) -> BigInt{
-        todo!()
+        BigInt{
+            sign: Sign::Positive ,
+            data: self.clone(),
+        }
+    }
+    pub(crate) fn is_odd(&self) -> bool{
+        self.data[0] & 0x1 == 1
     }
 }
 

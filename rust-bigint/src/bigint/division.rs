@@ -1,65 +1,72 @@
 use std::ops::{Div, DivAssign, Rem, RemAssign};
-use crate::BigUint;
+use crate::{BigInt, BigUint};
+use crate::bigint::Sign;
 
-impl Div<BigUint> for BigUint {
-    type Output = BigUint;
+impl Div<BigInt> for BigInt {
+    type Output = BigInt;
 
-    fn div(self, rhs: BigUint) -> Self::Output {
+    fn div(self, rhs: BigInt) -> Self::Output {
         self / &rhs
     }
 }
 
-impl Div<&BigUint> for BigUint {
-    type Output = BigUint;
+impl Div<&BigInt> for BigInt {
+    type Output = BigInt;
 
-    fn div(self, rhs: &BigUint) -> Self::Output {
-        let mut res = crate::biguint::division::divide(&self, rhs).0;
-        res.fit();
-        res
+    fn div(self, rhs: &BigInt) -> Self::Output {
+        BigInt{ sign:  match (&self.sign, &rhs.sign){
+            (Sign::Positive, Sign::Negative) => Sign::Negative,
+            (Sign::Negative, Sign::Positive) => Sign::Negative,
+            (Sign::Positive, Sign::Positive) => Sign::Positive,
+            (Sign::Negative, Sign::Negative) => Sign::Positive,
+        }, data: self.data / &rhs.data }
     }
 }
 
-impl Rem<BigUint> for BigUint {
-    type Output = BigUint;
+impl Rem<BigInt> for BigInt {
+    type Output = BigInt;
 
-    fn rem(self, rhs: BigUint) -> Self::Output {
+    fn rem(self, rhs: BigInt) -> Self::Output {
         self % &rhs
     }
 }
 
-impl Rem<&BigUint> for BigUint {
-    type Output = BigUint;
+impl Rem<&BigInt> for BigInt {
+    type Output = BigInt;
 
-    fn rem(self, rhs: &BigUint) -> Self::Output {
-        let (_, mut r) = crate::biguint::division::divide(&self, rhs);
-        r.fit();
-        r
+    fn rem(self, rhs: &BigInt) -> Self::Output {
+        BigInt{ sign:match (&self.sign, &rhs.sign){
+            (Sign::Positive, Sign::Negative) => Sign::Negative,
+            (Sign::Negative, Sign::Positive) => Sign::Positive,
+            (Sign::Positive, Sign::Positive) => Sign::Positive,
+            (Sign::Negative, Sign::Negative) => Sign::Negative,
+        }, data: self.data % &rhs.data }
     }
 }
 
-impl DivAssign<BigUint> for BigUint {
-    fn div_assign(&mut self, rhs: BigUint) {
+impl DivAssign<BigInt> for BigInt {
+    fn div_assign(&mut self, rhs: BigInt) {
         let res = self.clone() / &rhs;
         self.data = res.data
     }
 }
 
-impl DivAssign<&BigUint> for BigUint {
-    fn div_assign(&mut self, rhs: &BigUint) {
+impl DivAssign<&BigInt> for BigInt {
+    fn div_assign(&mut self, rhs: &BigInt) {
         let res = self.clone() / rhs;
         self.data = res.data
     }
 }
 
-impl RemAssign<BigUint> for BigUint {
-    fn rem_assign(&mut self, rhs: BigUint) {
+impl RemAssign<BigInt> for BigInt {
+    fn rem_assign(&mut self, rhs: BigInt) {
         let res = self.clone() % &rhs;
         self.data = res.data
     }
 }
 
-impl RemAssign<&BigUint> for BigUint {
-    fn rem_assign(&mut self, rhs: &BigUint) {
+impl RemAssign<&BigInt> for BigInt {
+    fn rem_assign(&mut self, rhs: &BigInt) {
         let res = self.clone() % rhs;
         self.data = res.data
     }

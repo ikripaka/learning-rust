@@ -125,12 +125,8 @@ fn pow_mod_4_window(a: &BigUint, power: &BigUint, module: &BigUint) -> BigUint {
     let mut window = Vec::with_capacity(16);
     window.push(BigUint::one());
     window.push(a.clone() % module);
-    println!("window i:1 {:X}", window[1]);
     for i in 2..16 {
-        println!("a: {:X}, window: {:X}, module: {:X}", a, window[i-1], module);
         window.push((a.clone() * &window[i - 1]) % module);
-        println!("window i:{i}: {:X} -- {:X}", window[i], (a.clone() * &window[i - 1]) % module
-        )
     }
     let power_hex_list = extract_hex_vec_from_biguint(power);
     for (j, h) in power_hex_list.iter().enumerate().rev() {
@@ -140,9 +136,7 @@ fn pow_mod_4_window(a: &BigUint, power: &BigUint, module: &BigUint) -> BigUint {
                 c = (c.clone() * c.clone()) % module
             }
         }
-        println!("j: {}, h: {:X}, c: {:X}", j, h, c)
     }
-    println!("");
     c
 }
 pub(super) fn mod_pow(a: &BigUint, power: &BigUint, module: &BigUint) -> BigUint {

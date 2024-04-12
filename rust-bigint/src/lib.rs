@@ -42,16 +42,16 @@ impl Display for ParseBigIntErr {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", match self {
             ParseBigIntErr::CantParseSign(sign) => format!("Can't parse sing: {sign}"),
-            ParseBigUintErr::UnhandledRadix(radix) =>
+            ParseBigIntErr::UnhandledRadix(radix) =>
                 format!("Cannot handle such radix in conversion, got: {radix}, can handle only radix 2 or 16"),
-            ParseBigUintErr::IncorrectSymbol((is_binary, symbol)) =>
+            ParseBigIntErr::IncorrectSymbol((is_binary, symbol)) =>
                 format!("Can't handle such symbol: \"{symbol}\" in {} conversion",
                         if *is_binary {
                             "binary"
                         } else {
                             "hex"
                         }),
-            ParseBigUintErr::UnableToParseInt(msg) => format!("Unable to parse int from str, message: {msg}")
+            ParseBigIntErr::UnableToParseInt(msg) => format!("Unable to parse int from str, message: {msg}")
         })
     }
 }

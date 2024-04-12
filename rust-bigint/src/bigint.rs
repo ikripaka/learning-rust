@@ -15,22 +15,22 @@ use crate::biguint::conversion::{parse_from_bit_str, parse_from_hex_str, to_bina
 use crate::{ParseBigIntErr, ParseBigUintErr};
 use crate::bigint::helpers::partial_cmp;
 
-impl BigInt{
-
-    pub fn to_biuint(&self) -> BigUint{
-        todo!()
+impl BigInt {
+    pub fn to_biguint(&self) -> BigUint {
+        self.data.clone()
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub(crate) enum Sign {
     Positive,
     Negative,
 }
 
+#[derive(Eq, Clone)]
 pub struct BigInt {
-     sign: Sign,
-    data: BigUint,
+    pub(crate) sign: Sign,
+    pub(crate) data: BigUint,
 }
 
 impl Display for Sign {
@@ -41,25 +41,26 @@ impl Display for Sign {
         })
     }
 }
-impl Zero for BigInt{
+
+impl Zero for BigInt {
     fn zero() -> Self {
-        Self{
+        Self {
             sign: Sign::Positive,
             data: BigUint::zero(),
         }
     }
 
     fn is_zero(&self) -> bool {
-        if let Sign::Positive = self.sign{
-            return self.data.is_zero()
+        if let Sign::Positive = self.sign {
+            return self.data.is_zero();
         }
         false
     }
 }
 
-impl One for BigInt{
+impl One for BigInt {
     fn one() -> Self {
-        Self{
+        Self {
             sign: Sign::Positive,
             data: BigUint::one(),
         }
@@ -73,7 +74,7 @@ impl Num for BigInt {
     /// Input has to be in ASCII code.
     fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
         if str.is_empty() {
-            return Ok(BigInt{ sign: Sign::Positive, data:BigUint::zero() });
+            return Ok(BigInt { sign: Sign::Positive, data: BigUint::zero() });
         }
         Ok({
             let (sign, str) = extract_sign(str)?;
@@ -83,7 +84,7 @@ impl Num for BigInt {
                 _ => return Err(ParseBigIntErr::UnhandledRadix(radix)),
             };
             n.fit();
-            BigInt{
+            BigInt {
                 sign,
                 data: n,
             }
@@ -92,15 +93,15 @@ impl Num for BigInt {
 }
 
 fn extract_sign(s: &str) -> Result<(Sign, &str), ParseBigIntErr> {
-   let mut chars = s.chars();
-    match chars.next(){
+    let mut chars = s.chars();
+    match chars.next() {
         None => Ok((Sign::Positive, s)),
         Some(c) => {
-            if c == '+'{
+            if c == '+' {
                 Ok((Sign::Positive, &s[1..]))
-            }else if c == '-'{
+            } else if c == '-' {
                 Ok((Sign::Negative, &s[1..]))
-            }else{
+            } else {
                 Err(ParseBigIntErr::CantParseSign(c.to_string()))
             }
         }
@@ -109,8 +110,8 @@ fn extract_sign(s: &str) -> Result<(Sign, &str), ParseBigIntErr> {
 
 impl PartialEq<Self> for BigInt {
     fn eq(&self, other: &Self) -> bool {
-        if self.sign == other.sign{
-            return self.data.eq(&other.data)
+        if self.sign == other.sign {
+            return self.data.eq(&other.data);
         }
         false
     }
@@ -129,7 +130,7 @@ impl Ord for BigInt {
     }
 }
 
-impl Default for BigUint {
+impl Default for BigInt {
     fn default() -> Self {
         Self::zero()
     }
@@ -137,36 +138,36 @@ impl Default for BigUint {
 
 impl fmt::Debug for BigInt {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", format!("{}{:X?}",self.sign, self.data))
+        write!(f, "{}", format!("{}{:X?}", self.sign, self.data))
     }
 }
 
 impl fmt::Display for BigInt {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", format!("{}{:X?}", self.sign,self.data))
+        write!(f, "{}", format!("{}{:X?}", self.sign, self.data))
     }
 }
 
 impl fmt::LowerHex for BigInt {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{}", self.sign,to_lower_hex(&self.data))
+        write!(f, "{}{}", self.sign, to_lower_hex(&self.data))
     }
 }
 
 impl fmt::UpperHex for BigInt {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{}", self.sign,to_upper_hex(&self.data))
+        write!(f, "{}{}", self.sign, to_upper_hex(&self.data))
     }
 }
 
 impl fmt::Binary for BigInt {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{}", self.sign,to_binary(&self.data))
+        write!(f, "{}{}", self.sign, to_binary(&self.data))
     }
 }
 
 impl fmt::Octal for BigInt {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{}",self.sign, to_octal(&self.data))
+        write!(f, "{}{}", self.sign, to_octal(&self.data))
     }
 }

@@ -19,18 +19,18 @@ impl Add<&BigInt> for BigInt{
         match (&self.sign, &rhs.sign){
             (Sign::Negative, Sign::Positive) => {
                 if self.data > rhs.data{
-                    BigInt{ sign: Sign::Negative, data: self.clone() - rhs }
+                    BigInt{ sign: Sign::Negative, data: self.data.clone() - &rhs.data }
                 }else if self.data < rhs.data{
-                    BigInt{ sign: Sign::Positive, data: rhs.data.clone() - self }
+                    BigInt{ sign: Sign::Positive, data: rhs.data.clone() - &self.data }
                 }else{
                     BigInt::zero()
                 }
             },
             (Sign::Positive, Sign::Negative) => {
                 if self.data > rhs.data{
-                    BigInt{ sign: Sign::Positive, data: self.clone() - rhs }
+                    BigInt{ sign: Sign::Positive, data: self.data.clone() - &rhs.data }
                 }else if self.data < rhs.data{
-                    BigInt{ sign: Sign::Negative, data: rhs.data.clone() - self }
+                    BigInt{ sign: Sign::Negative, data: rhs.data.clone() - &self.data }
                 }else{
                     BigInt::zero()
                 }
@@ -42,12 +42,16 @@ impl Add<&BigInt> for BigInt{
 
 impl AddAssign<&BigInt> for BigInt{
     fn add_assign(&mut self, rhs: &BigInt) {
-        self=  self.clone() + rhs
+        let res =  self.clone() + rhs;
+        self.sign = res.sign;
+        self.data = res.data
     }
 }
 
 impl AddAssign<BigInt> for BigInt{
     fn add_assign(&mut self, rhs: BigInt) {
-        self = self.clone() + &rhs
+        let res =  self.clone() + &rhs;
+        self.sign = res.sign;
+        self.data = res.data
     }
 }
