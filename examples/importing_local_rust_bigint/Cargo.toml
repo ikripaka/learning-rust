@@ -1,10 +1,10 @@
 [package]
-name = "rust-bigint"
+name = "importing_local_rust_bigint"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-num-traits = "0.2"
-regex = "1.10.4"
+rust-bigint = {path = "../../rust-bigint"}
+num-traits = "0.2.18"

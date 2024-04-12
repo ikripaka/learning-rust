@@ -45,21 +45,23 @@ impl BigInt {
         // })
         Ok(BigInt::one())
     }
+    /// **to_biguint** -- converts BigInt to unsinged BigUint number
     pub fn to_biguint(&self) -> BigUint {
         self.data.clone()
     }
-
+    /// **to_lower_hex_string** -- converts BigInt to lower hex number format string
     pub fn to_lower_hex_string(&self) -> String {
         format!("{:x}", self)
     }
-
+    /// **to_upper_hex_string** -- converts BigInt to upper hex number format string
     pub fn to_upper_hex_string(&self) -> String {
         format!("{:X}", self)
     }
-
+    /// **to_binary_string** -- converts BigInt to binary number format string
     pub fn to_binary_string(&self) -> String {
         format!("{:b}", self)
     }
+    /// **pow_mod** -- powers number to certain power using sliding 4bit window algorithm
     pub fn pow_mod(&self, power: &BigUint, module: &BigUint) -> BigInt {
         pow_mod(self, power, module)
     }

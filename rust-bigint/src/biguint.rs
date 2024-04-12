@@ -29,6 +29,7 @@ pub struct BigUint {
 }
 
 impl BigUint {
+    /// **from_bytes_radix** -- converts byte slice that is written with 0,1 or hex symbol numbers
     pub fn from_bytes_radix(data: &[u8], radix: u32) -> Result<Self, ParseBigUintErr> {
         Ok({
             let mut n = match radix {
@@ -40,19 +41,26 @@ impl BigUint {
             n
         })
     }
-
+    /// **to_biguint** -- converts BigUint to unsinged BigUint number
+    pub fn to_bigint(&self) -> BigInt {
+        BigInt {
+            sign: Sign::Positive,
+            data: self.clone(),
+        }
+    }
+    /// **to_lower_hex_string** -- converts BigUint to lower hex number format string
     pub fn to_lower_hex_string(&self) -> String {
         to_lower_hex(self)
     }
-
+    /// **to_upper_hex_string** -- converts BigUint to upper hex number format string
     pub fn to_upper_hex_string(&self) -> String {
         to_upper_hex(self)
     }
-
+    /// **to_binary_string** -- converts BigUint to binary number format string
     pub fn to_binary_string(&self) -> String {
         to_binary(self)
     }
-
+    /// **pow_mod** -- powers number to certain power using sliding 4bit window algorithm
     pub fn pow_mod(&self, power: &Self, module: &Self) -> Self {
         mod_pow(self, power, module)
     }
@@ -61,13 +69,7 @@ impl BigUint {
     pub(crate) fn fit(&mut self) {
         fit(self)
     }
-
-    pub fn to_bigint(&self) -> BigInt {
-        BigInt {
-            sign: Sign::Positive,
-            data: self.clone(),
-        }
-    }
+    /// **is_odd** -- determines whether the number is odd or no
     pub(crate) fn is_odd(&self) -> bool {
         self.data[0] & 0x1 == 1
     }
@@ -97,12 +99,8 @@ impl One for BigUint {
 impl Num for BigUint {
     type FromStrRadixErr = ParseBigUintErr;
 
-    /// Creates BigUint struct from radix 2 and 16.
+    /// **from_str_radix** -- creates BigUint struct from radix 2 and 16.
     /// Input has to be in ASCII code.
-    /// ```rust
-    /// use rust_bigint::BigUint;
-    ///
-    /// ```
     fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
         if str.is_empty() {
             return Ok(BigUint::zero());
@@ -114,7 +112,6 @@ impl Num for BigUint {
                 _ => return Err(ParseBigUintErr::UnhandledRadix(radix)),
             };
             n.fit();
-
             n
         })
     }
